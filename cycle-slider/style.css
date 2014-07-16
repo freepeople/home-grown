@@ -1,0 +1,72 @@
+h3 {
+    text-align: center;
+}
+
+.paging {
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+}
+
+.external > * {
+    margin: 0 5px;
+}
+
+.cycle-pager {
+    display: block;
+}
+
+.pager-dots {
+    text-align: center;
+    width: 100%;
+    z-index: 500;
+    position: relative;
+    bottom: 27px;
+}
+
+
+.pager-dots span {
+    font-size: 50px;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    color: #ddd;
+}
+
+.pager-dots .cycle-pager-active {
+    color: #14ccd6;
+}
+
+.pager-dots > * {
+    cursor: pointer;
+}
+
+img.cycle-pager-active {
+    background: red;
+    padding: 1px;
+}
+
+.cycle-caption {
+    position: absolute;
+    color: white;
+    bottom: 15px;
+    right: 15px;
+    z-index: 700;
+}
+
+/* media queries */
+@media only screen and (max-width: 500px) {
+    #thumbnails img {
+        width: 12%;
+    }
+    .paging,
+    .cycle-caption {
+        font-size:.5em;
+    }
+}
+
+.group:after {
+  content: "";
+  display: table;
+  clear: both;
+}

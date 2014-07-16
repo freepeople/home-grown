@@ -1,0 +1,63 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Cycle 2 Proof of Concept</title>
+        <link rel="stylesheet" href="reset.css">
+        <link rel="stylesheet" href="http://jquery.malsup.com/cycle2/demo/demo-slideshow.css">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="row">
+            <h3>Pager Thumbnails</h3>
+            <div class="cycle-slideshow slider1"
+                data-loop="1"
+                data-cycle-swipe="true"
+                data-cycle-swipe-fx="scrollHorz"
+                data-cycle-speed="200"
+                data-cycle-pager="#thumbnails"
+                data-cycle-pager-template=""
+                data-cycle-prev="#prev"
+                data-cycle-next="#next">
+                
+                <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-00?wid=1200&hei=540">
+                <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-01?wid=1200&hei=540">
+                <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-02?wid=1200&hei=540">
+                <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-03?wid=1200&hei=540">
+            </div>
+            <div id="thumbnails" class="paging">
+                <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-00?wid=100">
+                <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-01?wid=100">
+                <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-02?wid=100">
+                <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-03?wid=100">
+            </div>
+            <div class="paging">
+                <a href=# id="prev">Prev</a>
+                <a href=# id="next">Next</a>
+            </div>
+        </div>
+        <div class="row">
+        <h3>Pager Dots w/ caption</h3>
+        <div class="pager-dots"></div>
+        <div class="cycle-slideshow slider2"
+            data-cycle-caption="#custom-caption"
+            data-cycle-swipe="true"
+            data-cycle-swipe-fx="scrollHorz"
+            data-cycle-caption-template="{{slideNum}} of {{slideCount}}"
+            data-cycle-speed="200"
+            data-cycle-pager=".pager-dots">
+            <div id="custom-caption" class="    "></div>
+            <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-00?wid=1200&hei=540">
+            <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-01?wid=1200&hei=540">
+            <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-02?wid=1200&hei=540">
+            <img src="http://images.freepeople.com/is/image/FreePeople/Free-People-As-You-Are-03?wid=1200&hei=540">
+        </div>
+        <div>
+        
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.cycle2/20140216/jquery.cycle2.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.cycle2/20140216/jquery.cycle2.swipe.min.js"></script>
+        <script src="app.js"></script>
+    </body>
+</html>
