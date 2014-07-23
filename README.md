@@ -21,4 +21,4 @@ Lean Slider
 -----------
 [Lean Slider](http://dev7studios.com/lean-slider/)
 
-Re-builing with plain vanilla js + browserify FTW :)
+Re-building with plain vanilla js + browserify FTW :)
