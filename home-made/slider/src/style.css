@@ -1,0 +1,7 @@
+.lean-slider-slide, .slide {
+    display:none;
+}
+
+.current {
+    display:block;
+}

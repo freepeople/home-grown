@@ -1,0 +1,18 @@
+{
+  "name": "home-made",
+  "version": "0.0.0",
+  "description": "Home made code modules",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "author": "David Annopolsky",
+  "license": "MIT",
+  "devDependencies": {
+    "browserify": "^4.2.3",
+    "gulp": "^3.8.6",
+    "gulp-uglify": "^0.3.1",
+    "vinyl-buffer": "0.0.0",
+    "vinyl-source-stream": "^0.1.1"
+  }
+}

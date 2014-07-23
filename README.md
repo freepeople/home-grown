@@ -1,13 +1,11 @@
 Modern Concepts
 ===============
+Testing out some modern modules
 
-The third party files are currently, being pull in via
-CDN for simplicity.
+to help remove the legacy stuff...
 
-Let me know if local versions are preferred. 
-
-Cycle2 Slider Plugin
------
+~~Cycle2 Slider Plugin~~
+--------------------
 
 Resources(API/DOCS)
 
@@ -18,3 +16,9 @@ Resources(API/DOCS)
 The cycle plugin is ```data-``` driven so no need to init with scripts :)
 
 Any events and augmentations can be done in scripts otherwise try ```data-``` 1st.
+
+Lean Slider
+-----------
+[Lean Slider](http://dev7studios.com/lean-slider/)
+
+Re-builing with plain vanilla js + browserify FTW :)
