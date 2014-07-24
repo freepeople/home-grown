@@ -2,7 +2,8 @@
 var Slider = require('./slider.proto');
 
 var slider = new Slider('#slider', {
-    directionNav: '#slider-direction-nav'
+    directionNav: '#slider-direction-nav',
+    controlNav: '#slider-control-nav'
 });
 },{"./slider.proto":2}],2:[function(require,module,exports){
 // This is orginally lean-slider
@@ -13,6 +14,7 @@ var extend = require('./utils/extend');
 var addListener = require('./utils/addListener');
 var addClass = require('./utils/addClass');
 var removeClass = require('./utils/removeClass');
+var forEach = require('./utils/forEach');
 
 var Slider = function(selector, options) {
     this.options = {
@@ -35,14 +37,15 @@ var Slider = function(selector, options) {
     this.selector = selector;
     this.$selector = document.querySelector(this.selector);
     this.options = extend(this.options, options);
-    this.children = [];
+    this.slides = [];
     for (var i = this.$selector.children.length; i--;) {
         // Skip comment nodes on IE8
         if (this.$selector.children[i].nodeType !== 8) {
-            this.children.unshift(this.$selector.children[i]);
+            this.slides.unshift(this.$selector.children[i]);
         }
     }
     this.init();
+    this.autoLoop();
 };
 
 var SliderProto = Slider.prototype;
@@ -51,17 +54,20 @@ SliderProto.init = function() {
     var $nextNav;
     var $prevNav;
     var self = this;
+    var bullets;
+    var $bullets;
     var $directionNav = document.querySelector(this.options.directionNav);
+    var $controlNav = document.querySelector(this.options.controlNav);
 
     addClass(this.$selector, 'lean-slider');
-    this.children.forEach(function(child) {
-        addClass(child, 'lean-slider-slide');
+    forEach(this.slides, function(slide) {
+        addClass(slide, 'lean-slider-slide');
     });
     this.currentSlide = this.options.startSlide;
-    if (this.options.startSlide < 0 || this.options.startSlide >= this.children.length) {
+    if (this.options.startSlide < 0 || this.options.startSlide >= this.slides.length) {
         this.currentSlide = 0;
     }
-    this.children[this.currentSlide].classList.add('current');
+    this.slides[this.currentSlide].classList.add('current');
 
     if ($directionNav) {
         $nextNav = document.querySelector('.lean-slider-next');
@@ -76,18 +82,37 @@ SliderProto.init = function() {
             e.preventDefault();
             self.next();
         });
+    }
+    if ($controlNav) {
+        for (var i = 0; i < this.slides.length; i++) {
+            bullets = '<a href="#" data-index="' + i + '" class="lean-slider-control-nav">' + (i + 1) + '</a>';
+            $controlNav.innerHTML += bullets;
+        }
+        addListener($controlNav, 'click', function(e) {
+            e.preventDefault();
+            var i = e.target.getAttribute('data-index');
+            self.show(i);
+        });
+    }
 
+    if (this.options.pauseOnHover) {
+        addListener(this.$selector, 'mouseenter', function(e) {
+            clearTimeout(self.timer);
+        });
+        addListener(this.$selector, 'mouseout', function(e) {
+            self.autoLoop();
+        });
     }
 };
 
 
-// Process timer
-SliderProto.doTimer = function() {
+SliderProto.autoLoop = function() {
     var self = this;
     if (this.options.pauseTime && this.options.pauseTime > 0) {
         clearTimeout(this.timer);
         this.timer = setTimeout(function() {
             self.next();
+            self.autoLoop();
         }, this.options.pauseTime);
     }
 };
@@ -97,27 +122,38 @@ SliderProto.prev = function() {
     var oldCurrent = this.currentSlide;
     this.currentSlide--;
     if (this.currentSlide < 0) {
-        this.currentSlide = this.children.length - 1;
+        this.currentSlide = this.slides.length - 1;
     }
-    removeClass(this.children[oldCurrent], 'current');
-    addClass(this.children[this.currentSlide], 'current');
+    removeClass(this.slides[oldCurrent], 'current');
+    addClass(this.slides[this.currentSlide], 'current');
 
 };
 
 SliderProto.next = function() {
     var oldCurrent = this.currentSlide;
     this.currentSlide++;
-    if (this.currentSlide >= this.children.length) {
+    if (this.currentSlide >= this.slides.length) {
         this.currentSlide = 0;
     }
-    removeClass(this.children[oldCurrent], 'current');
-    addClass(this.children[this.currentSlide], 'current');
+    removeClass(this.slides[oldCurrent], 'current');
+    addClass(this.slides[this.currentSlide], 'current');
 };
 
-SliderProto.show = function() {};
+SliderProto.show = function(index) {
+    var oldCurrent = this.currentSlide;
+    this.currentSlide = index;
+    if (this.currentSlide < 0) {
+        this.currentSlide = this.slides.length - 1;
+    }
+    if (this.currentSlide >= this.slides.length) {
+        this.currentSlide = 0;
+    }
+    removeClass(this.slides[oldCurrent], 'current');
+    addClass(this.slides[this.currentSlide], 'current');
+};
 
 module.exports = Slider;
-},{"./utils/addClass":3,"./utils/addListener":4,"./utils/extend":5,"./utils/removeClass":6}],3:[function(require,module,exports){
+},{"./utils/addClass":3,"./utils/addListener":4,"./utils/extend":5,"./utils/forEach":6,"./utils/removeClass":7}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = function(el, className) {
@@ -157,6 +193,23 @@ module.exports = function(obj) {
     return obj;
 };
 },{}],6:[function(require,module,exports){
+'use strict';
+
+module.exports = function(arr, callback, thisObj) {
+    if (arr === null) {
+        return;
+    }
+    var i = -1,
+        len = arr.length;
+    while (++i < len) {
+        // we iterate over sparse items since there is no way to make it
+        // work properly on IE 7-8. see #64
+        if (callback.call(thisObj, arr[i], i, arr) === false) {
+            break;
+        }
+    }
+};
+},{}],7:[function(require,module,exports){
 'use strict';
 module.exports = function(el, className) {
     if (el.classList) {

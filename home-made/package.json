@@ -13,6 +13,7 @@
     "gulp": "^3.8.6",
     "gulp-uglify": "^0.3.1",
     "vinyl-buffer": "0.0.0",
-    "vinyl-source-stream": "^0.1.1"
+    "vinyl-source-stream": "^0.1.1",
+    "watchify": "^0.10.2"
   }
 }

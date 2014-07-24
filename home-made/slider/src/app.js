@@ -1,5 +1,6 @@
 var Slider = require('./slider.proto');
 
 var slider = new Slider('#slider', {
-    directionNav: '#slider-direction-nav'
+    directionNav: '#slider-direction-nav',
+    controlNav: '#slider-control-nav'
 });
