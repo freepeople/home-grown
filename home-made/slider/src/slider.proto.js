@@ -7,6 +7,7 @@ var addListener = require('./utils/addListener');
 var addClass = require('./utils/addClass');
 var removeClass = require('./utils/removeClass');
 var forEach = require('./utils/forEach');
+var pubsub = require('./utils/pubsub');
 
 var Slider = function(selector, options) {
     this.options = {
@@ -17,12 +18,7 @@ var Slider = function(selector, options) {
         directionNavPrevBuilder: '',
         directionNavNextBuilder: '',
         controlNav: '',
-        controlNavBuilder: '',
-        prevText: 'Prev',
-        nextText: 'Next',
-        beforeChange: function() {},
-        afterChange: function() {},
-        afterLoad: function() {}
+        controlNavBuilder: ''
     };
     this.currentSlide = 0;
     this.timer = 0;
@@ -38,6 +34,8 @@ var Slider = function(selector, options) {
     }
     this.init();
     this.autoLoop();
+
+    pubsub.publish('afterLoad');
 };
 
 var SliderProto = Slider.prototype;
@@ -111,6 +109,8 @@ SliderProto.autoLoop = function() {
 
 
 SliderProto.prev = function() {
+    pubsub.publish('beforeChange', this.currentSlide);
+
     var oldCurrent = this.currentSlide;
     this.currentSlide--;
     if (this.currentSlide < 0) {
@@ -119,9 +119,12 @@ SliderProto.prev = function() {
     removeClass(this.slides[oldCurrent], 'current');
     addClass(this.slides[this.currentSlide], 'current');
 
+    pubsub.publish('afterChange', this.currentSlide);
 };
 
 SliderProto.next = function() {
+    pubsub.publish('beforeChange', this.currentSlide);
+
     var oldCurrent = this.currentSlide;
     this.currentSlide++;
     if (this.currentSlide >= this.slides.length) {
@@ -129,6 +132,8 @@ SliderProto.next = function() {
     }
     removeClass(this.slides[oldCurrent], 'current');
     addClass(this.slides[this.currentSlide], 'current');
+
+    pubsub.publish('afterChange', this.currentSlide);
 };
 
 SliderProto.show = function(index) {

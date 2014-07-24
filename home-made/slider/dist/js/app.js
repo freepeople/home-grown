@@ -1,11 +1,13 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
 var Slider = require('./slider.proto');
+var pubsub = require('./utils/pubsub');
 
 var slider = new Slider('#slider', {
     directionNav: '#slider-direction-nav',
     controlNav: '#slider-control-nav'
 });
-},{"./slider.proto":2}],2:[function(require,module,exports){
+},{"./slider.proto":2,"./utils/pubsub":7}],2:[function(require,module,exports){
 // This is orginally lean-slider
 // but converted to vanilla js
 // and built on top with browserify help :)
@@ -15,6 +17,7 @@ var addListener = require('./utils/addListener');
 var addClass = require('./utils/addClass');
 var removeClass = require('./utils/removeClass');
 var forEach = require('./utils/forEach');
+var pubsub = require('./utils/pubsub');
 
 var Slider = function(selector, options) {
     this.options = {
@@ -25,12 +28,7 @@ var Slider = function(selector, options) {
         directionNavPrevBuilder: '',
         directionNavNextBuilder: '',
         controlNav: '',
-        controlNavBuilder: '',
-        prevText: 'Prev',
-        nextText: 'Next',
-        beforeChange: function() {},
-        afterChange: function() {},
-        afterLoad: function() {}
+        controlNavBuilder: ''
     };
     this.currentSlide = 0;
     this.timer = 0;
@@ -46,6 +44,8 @@ var Slider = function(selector, options) {
     }
     this.init();
     this.autoLoop();
+
+    pubsub.publish('afterLoad');
 };
 
 var SliderProto = Slider.prototype;
@@ -119,6 +119,8 @@ SliderProto.autoLoop = function() {
 
 
 SliderProto.prev = function() {
+    pubsub.publish('beforeChange', this.currentSlide);
+
     var oldCurrent = this.currentSlide;
     this.currentSlide--;
     if (this.currentSlide < 0) {
@@ -127,9 +129,12 @@ SliderProto.prev = function() {
     removeClass(this.slides[oldCurrent], 'current');
     addClass(this.slides[this.currentSlide], 'current');
 
+    pubsub.publish('afterChange', this.currentSlide);
 };
 
 SliderProto.next = function() {
+    pubsub.publish('beforeChange', this.currentSlide);
+
     var oldCurrent = this.currentSlide;
     this.currentSlide++;
     if (this.currentSlide >= this.slides.length) {
@@ -137,6 +142,8 @@ SliderProto.next = function() {
     }
     removeClass(this.slides[oldCurrent], 'current');
     addClass(this.slides[this.currentSlide], 'current');
+
+    pubsub.publish('afterChange', this.currentSlide);
 };
 
 SliderProto.show = function(index) {
@@ -153,7 +160,7 @@ SliderProto.show = function(index) {
 };
 
 module.exports = Slider;
-},{"./utils/addClass":3,"./utils/addListener":4,"./utils/extend":5,"./utils/forEach":6,"./utils/removeClass":7}],3:[function(require,module,exports){
+},{"./utils/addClass":3,"./utils/addListener":4,"./utils/extend":5,"./utils/forEach":6,"./utils/pubsub":7,"./utils/removeClass":8}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = function(el, className) {
@@ -199,8 +206,8 @@ module.exports = function(arr, callback, thisObj) {
     if (arr === null) {
         return;
     }
-    var i = -1,
-        len = arr.length;
+    var i = -1;
+    var len = arr.length;
     while (++i < len) {
         // we iterate over sparse items since there is no way to make it
         // work properly on IE 7-8. see #64
@@ -210,6 +217,90 @@ module.exports = function(arr, callback, thisObj) {
     }
 };
 },{}],7:[function(require,module,exports){
+'use strict';
+
+
+var _checkEvent = function(event) {
+    if (Object.prototype.toString.call(event) !== '[object String]') {
+        throw new TypeError('Event is not a string.');
+    }
+};
+
+var _checkHandler = function(handler) {
+    if (typeof handler !== 'function') {
+        throw new TypeError('Handler is not a function');
+    }
+};
+
+var handlers = {};
+var pubsub = {};
+
+pubsub.publish = function(event) {
+
+    _checkEvent(event);
+
+    if (!handlers[event]) {
+        return;
+    }
+
+    var context = {
+        event: event,
+        args: Array.prototype.slice.call(arguments, 1)
+    };
+
+    for (var i = 0, l = handlers[event].length; i < l; i++) {
+        handlers[event][i].apply(context, context.args);
+    }
+};
+
+pubsub.subscribe = function(event, handler) {
+    _checkEvent(event);
+    _checkHandler(handler);
+    (handlers[event] = handlers[event] || []).push(handler);
+};
+
+pubsub.unsubscribe = function() {
+    var len;
+    var event;
+    var index;
+    var handler;
+    var args = Array.prototype.slice.call(arguments);
+
+    if (args.length >= 2) {
+        event = args[0];
+        handler = args[1];
+
+        _checkEvent(event);
+        _checkHandler(handler);
+
+        if (!handlers[event]) {
+            return;
+        }
+
+        for (index = 0, len = handlers[event].length; index < len; index++) {
+            if (handlers[event][index] === handler) {
+                handlers[event].splice(index, 1);
+            }
+        }
+    } else {
+        handler = args[0];
+
+        _checkHandler(handler);
+
+        for (event in handlers) {
+            if (handlers.hasOwnProperty(event)) {
+                for (index = 0, len = handlers[event].length; index < len; index++) {
+                    if (handlers[event][index] === handler) {
+                        handlers[event].splice(index, 1);
+                    }
+                }
+            }
+        }
+    }
+};
+
+module.exports = pubsub;
+},{}],8:[function(require,module,exports){
 'use strict';
 module.exports = function(el, className) {
     if (el.classList) {
