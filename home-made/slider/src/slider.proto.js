@@ -35,7 +35,6 @@ var Slider = function(selector, options) {
     this.init();
     this.autoLoop();
 
-    pubsub.publish('afterLoad');
 };
 
 var SliderProto = Slider.prototype;
@@ -87,12 +86,14 @@ SliderProto.init = function() {
 
     if (this.options.pauseOnHover) {
         addListener(this.$selector, 'mouseenter', function(e) {
+            pubsub.publish('hovered');
             clearTimeout(self.timer);
         });
         addListener(this.$selector, 'mouseout', function(e) {
             self.autoLoop();
         });
     }
+
 };
 
 

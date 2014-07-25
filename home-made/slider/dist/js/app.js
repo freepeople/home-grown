@@ -7,6 +7,24 @@ var slider = new Slider('#slider', {
     directionNav: '#slider-direction-nav',
     controlNav: '#slider-control-nav'
 });
+
+var bc = function() {
+    console.log('before slide change');
+};
+
+pubsub.subscribe('beforeChange', bc);
+
+pubsub.subscribe('beforeChange', function() {
+    console.log('different dev using anonymous function cb');
+});
+
+pubsub.subscribe('hovered', function() {
+    console.log('hovered on slide');
+});
+
+setTimeout(function() {
+    pubsub.unsubscribe('beforeChange', bc);
+}, 12000);
 },{"./slider.proto":2,"./utils/pubsub":7}],2:[function(require,module,exports){
 // This is orginally lean-slider
 // but converted to vanilla js
@@ -45,7 +63,6 @@ var Slider = function(selector, options) {
     this.init();
     this.autoLoop();
 
-    pubsub.publish('afterLoad');
 };
 
 var SliderProto = Slider.prototype;
@@ -97,12 +114,14 @@ SliderProto.init = function() {
 
     if (this.options.pauseOnHover) {
         addListener(this.$selector, 'mouseenter', function(e) {
+            pubsub.publish('hovered');
             clearTimeout(self.timer);
         });
         addListener(this.$selector, 'mouseout', function(e) {
             self.autoLoop();
         });
     }
+
 };
 
 
@@ -219,7 +238,6 @@ module.exports = function(arr, callback, thisObj) {
 },{}],7:[function(require,module,exports){
 'use strict';
 
-
 var _checkEvent = function(event) {
     if (Object.prototype.toString.call(event) !== '[object String]') {
         throw new TypeError('Event is not a string.');
@@ -236,7 +254,6 @@ var handlers = {};
 var pubsub = {};
 
 pubsub.publish = function(event) {
-
     _checkEvent(event);
 
     if (!handlers[event]) {
@@ -245,7 +262,7 @@ pubsub.publish = function(event) {
 
     var context = {
         event: event,
-        args: Array.prototype.slice.call(arguments, 1)
+        args: [].slice.call(arguments, 1)
     };
 
     for (var i = 0, l = handlers[event].length; i < l; i++) {
@@ -261,42 +278,18 @@ pubsub.subscribe = function(event, handler) {
 
 pubsub.unsubscribe = function() {
     var len;
-    var event;
     var index;
-    var handler;
-    var args = Array.prototype.slice.call(arguments);
+    var args = [].slice.call(arguments);
+    var event = args[0];
+    var handler = args[1];
 
-    if (args.length >= 2) {
-        event = args[0];
-        handler = args[1];
+    _checkEvent(event);
+    _checkHandler(handler);
 
-        _checkEvent(event);
-        _checkHandler(handler);
-
-        if (!handlers[event]) {
-            return;
-        }
-
-        for (index = 0, len = handlers[event].length; index < len; index++) {
-            if (handlers[event][index] === handler) {
-                handlers[event].splice(index, 1);
-            }
-        }
-    } else {
-        handler = args[0];
-
-        _checkHandler(handler);
-
-        for (event in handlers) {
-            if (handlers.hasOwnProperty(event)) {
-                for (index = 0, len = handlers[event].length; index < len; index++) {
-                    if (handlers[event][index] === handler) {
-                        handlers[event].splice(index, 1);
-                    }
-                }
-            }
-        }
+    if (event in handlers === false) {
+        return;
     }
+    handlers[event].splice(handlers[event].indexOf(handler), 1);
 };
 
 module.exports = pubsub;
