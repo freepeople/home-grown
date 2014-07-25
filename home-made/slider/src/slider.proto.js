@@ -44,7 +44,6 @@ SliderProto.init = function() {
     var $prevNav;
     var self = this;
     var bullets;
-    var $bullets;
     var $directionNav = document.querySelector(this.options.directionNav);
     var $controlNav = document.querySelector(this.options.controlNav);
 
@@ -85,11 +84,11 @@ SliderProto.init = function() {
     }
 
     if (this.options.pauseOnHover) {
-        addListener(this.$selector, 'mouseenter', function(e) {
+        addListener(this.$selector, 'mouseenter', function() {
             pubsub.publish('hovered');
             clearTimeout(self.timer);
         });
-        addListener(this.$selector, 'mouseout', function(e) {
+        addListener(this.$selector, 'mouseout', function() {
             self.autoLoop();
         });
     }

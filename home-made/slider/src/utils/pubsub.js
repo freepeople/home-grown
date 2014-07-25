@@ -39,8 +39,6 @@ pubsub.subscribe = function(event, handler) {
 };
 
 pubsub.unsubscribe = function() {
-    var len;
-    var index;
     var args = [].slice.call(arguments);
     var event = args[0];
     var handler = args[1];

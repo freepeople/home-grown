@@ -14,5 +14,6 @@
     "immed": true,
     "browser": true,
     "freeze": true,
-    "multistr": true
+    "multistr": true,
+    "unused": true
 }
