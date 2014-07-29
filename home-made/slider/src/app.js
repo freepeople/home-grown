@@ -4,7 +4,8 @@ var pubsub = require('./utils/pubsub');
 
 var slider = new Slider('#slider', {
     directionNav: '#slider-direction-nav',
-    controlNav: '#slider-control-nav'
+    controlNav: '#slider-control-nav',
+    pauseTime: 0
 });
 
 var bc = function() {

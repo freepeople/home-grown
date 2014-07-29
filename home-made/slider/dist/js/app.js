@@ -5,7 +5,8 @@ var pubsub = require('./utils/pubsub');
 
 var slider = new Slider('#slider', {
     directionNav: '#slider-direction-nav',
-    controlNav: '#slider-control-nav'
+    controlNav: '#slider-control-nav',
+    pauseTime: 0
 });
 
 var bc = function() {
@@ -72,23 +73,22 @@ SliderProto.init = function() {
     var $prevNav;
     var self = this;
     var bullets;
-    var $bullets;
     var $directionNav = document.querySelector(this.options.directionNav);
     var $controlNav = document.querySelector(this.options.controlNav);
 
-    addClass(this.$selector, 'lean-slider');
+    addClass(this.$selector, 'homemade-slider');
     forEach(this.slides, function(slide) {
-        addClass(slide, 'lean-slider-slide');
+        addClass(slide, 'homemade-slider-slide');
     });
     this.currentSlide = this.options.startSlide;
     if (this.options.startSlide < 0 || this.options.startSlide >= this.slides.length) {
         this.currentSlide = 0;
     }
-    this.slides[this.currentSlide].classList.add('current');
+    addClass(this.slides[this.currentSlide], 'current');
 
     if ($directionNav) {
-        $nextNav = document.querySelector('.lean-slider-next');
-        $prevNav = document.querySelector('.lean-slider-prev');
+        $nextNav = document.querySelector('.homemade-slider-next');
+        $prevNav = document.querySelector('.homemade-slider-prev');
 
         addListener($prevNav, 'click', function(e) {
             e.preventDefault();
@@ -102,7 +102,7 @@ SliderProto.init = function() {
     }
     if ($controlNav) {
         for (var i = 0; i < this.slides.length; i++) {
-            bullets = '<a href="#" data-index="' + i + '" class="lean-slider-control-nav">' + (i + 1) + '</a>';
+            bullets = '<a href="#" data-index="' + i + '" class="homemade-slider-control-nav">' + (i + 1) + '</a>';
             $controlNav.innerHTML += bullets;
         }
         addListener($controlNav, 'click', function(e) {
@@ -113,11 +113,11 @@ SliderProto.init = function() {
     }
 
     if (this.options.pauseOnHover) {
-        addListener(this.$selector, 'mouseenter', function(e) {
+        addListener(this.$selector, 'mouseenter', function() {
             pubsub.publish('hovered');
             clearTimeout(self.timer);
         });
-        addListener(this.$selector, 'mouseout', function(e) {
+        addListener(this.$selector, 'mouseout', function() {
             self.autoLoop();
         });
     }
@@ -140,12 +140,13 @@ SliderProto.autoLoop = function() {
 SliderProto.prev = function() {
     pubsub.publish('beforeChange', this.currentSlide);
 
-    var oldCurrent = this.currentSlide;
+    removeClass(this.slides[this.currentSlide], 'current');
+
     this.currentSlide--;
     if (this.currentSlide < 0) {
         this.currentSlide = this.slides.length - 1;
     }
-    removeClass(this.slides[oldCurrent], 'current');
+
     addClass(this.slides[this.currentSlide], 'current');
 
     pubsub.publish('afterChange', this.currentSlide);
@@ -154,13 +155,15 @@ SliderProto.prev = function() {
 SliderProto.next = function() {
     pubsub.publish('beforeChange', this.currentSlide);
 
-    var oldCurrent = this.currentSlide;
+    removeClass(this.slides[this.currentSlide], 'current');
+    removeClass(this.slides[this.currentSlide], 'show-next');
+
     this.currentSlide++;
     if (this.currentSlide >= this.slides.length) {
         this.currentSlide = 0;
     }
-    removeClass(this.slides[oldCurrent], 'current');
     addClass(this.slides[this.currentSlide], 'current');
+    addClass(this.slides[this.currentSlide], 'show-next');
 
     pubsub.publish('afterChange', this.currentSlide);
 };
@@ -277,8 +280,6 @@ pubsub.subscribe = function(event, handler) {
 };
 
 pubsub.unsubscribe = function() {
-    var len;
-    var index;
     var args = [].slice.call(arguments);
     var event = args[0];
     var handler = args[1];
