@@ -12,7 +12,7 @@ var siblings = require('./utils/siblings');
 var pubsub = require('./utils/pubsub');
 
 var query = document.querySelector.bind(document);
-var removeAll = function() {
+var removeAllClasses = function() {
     removeClass(query('.current'), 'current');
     removeClass(query('.hide-previous'), 'hide-previous');
     removeClass(query('.show-previous'), 'show-previous');
@@ -59,8 +59,9 @@ SliderProto.init = function() {
     var $controlNav = document.querySelector(this.options.controlNav);
 
     addClass(this.$selector, 'homemade-slider');
-    forEach(this.slides, function(slide) {
+    forEach(this.slides, function(slide, i) {
         addClass(slide, 'homemade-slider-slide');
+        slide.setAttribute('data-index', i);
     });
     this.currentSlide = this.options.startSlide;
     if (this.options.startSlide < 0 || this.options.startSlide >= this.slides.length) {
@@ -90,7 +91,7 @@ SliderProto.init = function() {
         addListener($controlNav, 'click', function(e) {
             e.preventDefault();
             var i = e.target.getAttribute('data-index');
-            self.show(i);
+            self.showSlide(i);
         });
     }
 
@@ -123,7 +124,7 @@ SliderProto.prev = function() {
     var slides = this.slides;
     pubsub.publish('beforeChange', this.currentSlide);
 
-    removeAll();
+    removeAllClasses();
 
     this.currentSlide--;
 
@@ -142,7 +143,7 @@ SliderProto.next = function() {
     var slides = this.slides;
     pubsub.publish('beforeChange', this.currentSlide);
 
-    removeAll();
+    removeAllClasses();
 
     this.currentSlide++;
 
@@ -157,18 +158,33 @@ SliderProto.next = function() {
     pubsub.publish('afterChange', this.currentSlide);
 };
 
-SliderProto.show = function(index) {
-    var oldCurrent = this.currentSlide;
+SliderProto.showSlide = function(index) {
+    if (!index) {
+        return;
+    }
+    var slides = this.slides;
+    var oldIndex = query('.current').getAttribute('data-index');
     this.currentSlide = index;
+
+    removeAllClasses();
+
     if (this.currentSlide < 0) {
         this.currentSlide = this.slides.length - 1;
     }
     if (this.currentSlide >= this.slides.length) {
         this.currentSlide = 0;
     }
-    removeClass(this.slides[oldCurrent], 'current');
-    addClass(this.slides[this.currentSlide], 'current');
 
+    if (this.currentSlide > oldIndex) {
+        addClass(slides[oldIndex], 'hide-previous');
+        addClass(slides[this.currentSlide], 'show-next');
+    }
+    if (this.currentSlide < oldIndex) {
+        addClass(slides[this.currentSlide], 'hide-next');
+        addClass(slides[oldIndex], 'show-previous');
+    }
+
+    addClass(slides[this.currentSlide], 'current');
 };
 
 module.exports = Slider;

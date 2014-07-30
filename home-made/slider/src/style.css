@@ -24,6 +24,11 @@
     bottom:0;
 }
 
+.homemade-slider-control-nav {
+  margin: 4px;
+  font-weight: bold;
+}
+
 .slide.current {
     position: static;
 }
