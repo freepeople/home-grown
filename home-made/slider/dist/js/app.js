@@ -92,6 +92,7 @@ SliderProto.init = function() {
         addClass(slide, 'homemade-slider-slide');
         slide.setAttribute('data-index', i);
     });
+
     this.currentSlide = this.options.startSlide;
     if (this.options.startSlide < 0 || this.options.startSlide >= this.slides.length) {
         this.currentSlide = 0;
@@ -188,12 +189,13 @@ SliderProto.next = function() {
 };
 
 SliderProto.showSlide = function(index) {
-    if (!index) {
+    var slides = this.slides;
+    var oldIndex = query('.current').getAttribute('data-index');
+    this.currentSlide = index;
+    if (!index || oldIndex === index) {
         return;
     }
-    var slides = this.slides;
-    this.currentSlide = index;
-    var oldIndex = query('.current').getAttribute('data-index');
+
     removeAllClasses();
 
     if (this.currentSlide < 0) {
@@ -202,11 +204,11 @@ SliderProto.showSlide = function(index) {
     if (this.currentSlide >= this.slides.length) {
         this.currentSlide = 0;
     }
+
     if (this.currentSlide > oldIndex) {
         addClass(slides[oldIndex], 'hide-previous');
         addClass(slides[this.currentSlide], 'show-next');
-    }
-    if (this.currentSlide < oldIndex) {
+    } else {
         addClass(slides[oldIndex], 'hide-next');
         addClass(slides[this.currentSlide], 'show-previous');
     }
@@ -268,7 +270,7 @@ module.exports = function(arr, callback, thisObj) {
     var len = arr.length;
     while (++i < len) {
         // we iterate over sparse items since there is no way to make it
-        // work properly on IE 7-8. see #64
+        // work properly on IE 7-8.
         if (callback.call(thisObj, arr[i], i, arr) === false) {
             break;
         }

@@ -63,6 +63,7 @@ SliderProto.init = function() {
         addClass(slide, 'homemade-slider-slide');
         slide.setAttribute('data-index', i);
     });
+
     this.currentSlide = this.options.startSlide;
     if (this.options.startSlide < 0 || this.options.startSlide >= this.slides.length) {
         this.currentSlide = 0;
@@ -159,12 +160,12 @@ SliderProto.next = function() {
 };
 
 SliderProto.showSlide = function(index) {
-    if (!index) {
-        return;
-    }
     var slides = this.slides;
     var oldIndex = query('.current').getAttribute('data-index');
     this.currentSlide = index;
+    if (!index || oldIndex === index) {
+        return;
+    }
 
     removeAllClasses();
 
@@ -178,10 +179,9 @@ SliderProto.showSlide = function(index) {
     if (this.currentSlide > oldIndex) {
         addClass(slides[oldIndex], 'hide-previous');
         addClass(slides[this.currentSlide], 'show-next');
-    }
-    if (this.currentSlide < oldIndex) {
-        addClass(slides[this.currentSlide], 'hide-next');
-        addClass(slides[oldIndex], 'show-previous');
+    } else {
+        addClass(slides[oldIndex], 'hide-next');
+        addClass(slides[this.currentSlide], 'show-previous');
     }
 
     addClass(slides[this.currentSlide], 'current');
