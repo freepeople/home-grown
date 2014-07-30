@@ -26,7 +26,7 @@ pubsub.subscribe('hovered', function() {
 setTimeout(function() {
     pubsub.unsubscribe('beforeChange', bc);
 }, 12000);
-},{"./slider.proto":2,"./utils/pubsub":7}],2:[function(require,module,exports){
+},{"./slider.proto":2,"./utils/pubsub":8}],2:[function(require,module,exports){
 // This is orginally lean-slider
 // but converted to vanilla js
 // and built on top with browserify help :)
@@ -35,8 +35,19 @@ var extend = require('./utils/extend');
 var addListener = require('./utils/addListener');
 var addClass = require('./utils/addClass');
 var removeClass = require('./utils/removeClass');
+var hasClass = require('./utils/hasClass');
 var forEach = require('./utils/forEach');
+var siblings = require('./utils/siblings');
 var pubsub = require('./utils/pubsub');
+
+var query = document.querySelector.bind(document);
+var removeAll = function() {
+    removeClass(query('.current'), 'current');
+    removeClass(query('.hide-previous'), 'hide-previous');
+    removeClass(query('.show-previous'), 'show-previous');
+    removeClass(query('.show-next'), 'show-next');
+    removeClass(query('.hide-next'), 'hide-next');
+};
 
 var Slider = function(selector, options) {
     this.options = {
@@ -138,32 +149,39 @@ SliderProto.autoLoop = function() {
 
 
 SliderProto.prev = function() {
+    var slides = this.slides;
     pubsub.publish('beforeChange', this.currentSlide);
 
-    removeClass(this.slides[this.currentSlide], 'current');
+    removeAll();
 
     this.currentSlide--;
+
     if (this.currentSlide < 0) {
-        this.currentSlide = this.slides.length - 1;
+        this.currentSlide = slides.length - 1;
     }
 
-    addClass(this.slides[this.currentSlide], 'current');
+    addClass(slides[this.currentSlide], 'current');
+    addClass(slides[this.currentSlide], 'show-previous');
+    addClass(slides[this.currentSlide === slides.length - 1 ? 0 : this.currentSlide + 1], 'hide-next');
 
     pubsub.publish('afterChange', this.currentSlide);
 };
 
 SliderProto.next = function() {
+    var slides = this.slides;
     pubsub.publish('beforeChange', this.currentSlide);
 
-    removeClass(this.slides[this.currentSlide], 'current');
-    removeClass(this.slides[this.currentSlide], 'show-next');
+    removeAll();
 
     this.currentSlide++;
-    if (this.currentSlide >= this.slides.length) {
+
+    if (this.currentSlide >= slides.length) {
         this.currentSlide = 0;
     }
-    addClass(this.slides[this.currentSlide], 'current');
-    addClass(this.slides[this.currentSlide], 'show-next');
+
+    addClass(slides[this.currentSlide], 'current');
+    addClass(slides[this.currentSlide], 'show-next');
+    addClass(slides[this.currentSlide === 0 ? slides.length - 1 : this.currentSlide - 1], 'hide-previous');
 
     pubsub.publish('afterChange', this.currentSlide);
 };
@@ -179,13 +197,17 @@ SliderProto.show = function(index) {
     }
     removeClass(this.slides[oldCurrent], 'current');
     addClass(this.slides[this.currentSlide], 'current');
+
 };
 
 module.exports = Slider;
-},{"./utils/addClass":3,"./utils/addListener":4,"./utils/extend":5,"./utils/forEach":6,"./utils/pubsub":7,"./utils/removeClass":8}],3:[function(require,module,exports){
+},{"./utils/addClass":3,"./utils/addListener":4,"./utils/extend":5,"./utils/forEach":6,"./utils/hasClass":7,"./utils/pubsub":8,"./utils/removeClass":9,"./utils/siblings":10}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = function(el, className) {
+    if (!el) {
+        return;
+    }
     if (el.classList) {
         el.classList.add(className);
     } else {
@@ -196,10 +218,10 @@ module.exports = function(el, className) {
 'use strict';
 module.exports = function(el, eventName, handler) {
     if (el.addEventListener) {
-        el.addEventListener(eventName, handler);
+        return el.addEventListener(eventName, handler);
     } else {
         el.attachEvent('on' + eventName, function() {
-            handler.call(el);
+            return handler.call(el);
         });
     }
 };
@@ -239,6 +261,19 @@ module.exports = function(arr, callback, thisObj) {
     }
 };
 },{}],7:[function(require,module,exports){
+'use strict';
+
+module.exports = function(el, className) {
+    if (!el) {
+        return;
+    }
+    if (el.classList) {
+        return el.classList.contains(className);
+    } else {
+        return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
+    }
+};
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var _checkEvent = function(event) {
@@ -294,13 +329,31 @@ pubsub.unsubscribe = function() {
 };
 
 module.exports = pubsub;
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 module.exports = function(el, className) {
+    if (!el) {
+        return;
+    }
     if (el.classList) {
-        el.classList.remove(className);
+        return el.classList.remove(className);
     } else {
         el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+        return el.className;
     }
+};
+},{}],10:[function(require,module,exports){
+'use strict';
+
+// el = element
+// sibling is previousSibling or nextSibling
+module.exports = function(el, sibling) {
+    if (!el) {
+        return;
+    }
+    do {
+        el = el[sibling];
+    } while (el && el.nodeType !== 1);
+    return el;
 };
 },{}]},{},[1])

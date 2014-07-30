@@ -5,8 +5,8 @@ module.exports = function(el, className) {
         return;
     }
     if (el.classList) {
-        el.classList.add(className);
+        return el.classList.contains(className);
     } else {
-        el.className += ' ' + className;
+        return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
     }
 };

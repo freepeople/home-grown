@@ -6,8 +6,19 @@ var extend = require('./utils/extend');
 var addListener = require('./utils/addListener');
 var addClass = require('./utils/addClass');
 var removeClass = require('./utils/removeClass');
+var hasClass = require('./utils/hasClass');
 var forEach = require('./utils/forEach');
+var siblings = require('./utils/siblings');
 var pubsub = require('./utils/pubsub');
+
+var query = document.querySelector.bind(document);
+var removeAll = function() {
+    removeClass(query('.current'), 'current');
+    removeClass(query('.hide-previous'), 'hide-previous');
+    removeClass(query('.show-previous'), 'show-previous');
+    removeClass(query('.show-next'), 'show-next');
+    removeClass(query('.hide-next'), 'hide-next');
+};
 
 var Slider = function(selector, options) {
     this.options = {
@@ -109,32 +120,39 @@ SliderProto.autoLoop = function() {
 
 
 SliderProto.prev = function() {
+    var slides = this.slides;
     pubsub.publish('beforeChange', this.currentSlide);
 
-    removeClass(this.slides[this.currentSlide], 'current');
+    removeAll();
 
     this.currentSlide--;
+
     if (this.currentSlide < 0) {
-        this.currentSlide = this.slides.length - 1;
+        this.currentSlide = slides.length - 1;
     }
 
-    addClass(this.slides[this.currentSlide], 'current');
+    addClass(slides[this.currentSlide], 'current');
+    addClass(slides[this.currentSlide], 'show-previous');
+    addClass(slides[this.currentSlide === slides.length - 1 ? 0 : this.currentSlide + 1], 'hide-next');
 
     pubsub.publish('afterChange', this.currentSlide);
 };
 
 SliderProto.next = function() {
+    var slides = this.slides;
     pubsub.publish('beforeChange', this.currentSlide);
 
-    removeClass(this.slides[this.currentSlide], 'current');
-    removeClass(this.slides[this.currentSlide], 'show-next');
+    removeAll();
 
     this.currentSlide++;
-    if (this.currentSlide >= this.slides.length) {
+
+    if (this.currentSlide >= slides.length) {
         this.currentSlide = 0;
     }
-    addClass(this.slides[this.currentSlide], 'current');
-    addClass(this.slides[this.currentSlide], 'show-next');
+
+    addClass(slides[this.currentSlide], 'current');
+    addClass(slides[this.currentSlide], 'show-next');
+    addClass(slides[this.currentSlide === 0 ? slides.length - 1 : this.currentSlide - 1], 'hide-previous');
 
     pubsub.publish('afterChange', this.currentSlide);
 };
@@ -150,6 +168,7 @@ SliderProto.show = function(index) {
     }
     removeClass(this.slides[oldCurrent], 'current');
     addClass(this.slides[this.currentSlide], 'current');
+
 };
 
 module.exports = Slider;

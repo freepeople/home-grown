@@ -12,6 +12,33 @@
 
 .slider-wrapper {
     position:relative;
+    max-width: 601px;
+    display: inline-block;
+    width:100%;
+}
+
+
+.slide {
+    position:absolute;
+    top:0;
+    bottom:0;
+}
+
+.slide.current {
+    position: static;
+}
+
+.homemade-slider {
+    overflow: hidden;
+    position: relative;
+}
+
+.show-previous, .show-next {
+    display:block;
+}
+
+.hide-previous, .hide-next {
+  display: block;
 }
 
 .show-previous {
@@ -27,27 +54,6 @@
   animation: slideFromRight 350ms 10ms linear both;
 }
 
-.slide {
-    position:absolute;
-    top:0;
-    bottom:0;
-}
-
-.slide.current {
-    position: static;
-}
-
-.homemade-slider {
-    position: relative;
-}
-
-.show-previous, .show-next {
-    display:block;
-}
-
-.hide-previous, .hide-next {
-  display: block;
-}
 .hide-previous {
   -webkit-animation: slideToLeft 350ms 10ms linear both;
   -moz-animation: slideToLeft 350ms 10ms linear both;
