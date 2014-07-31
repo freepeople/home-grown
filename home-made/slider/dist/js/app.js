@@ -26,7 +26,7 @@ var slider = new Slider('#slider', {
 // setTimeout(function() {
 //     pubsub.unsubscribe('beforeChange', bc);
 // }, 12000);
-},{"./slider.proto":2,"./utils/pubsub":8}],2:[function(require,module,exports){
+},{"./slider.proto":2,"./utils/pubsub":7}],2:[function(require,module,exports){
 // This is orginally lean-slider
 // but converted to vanilla js
 // and built on top with browserify help :)
@@ -35,10 +35,9 @@ var extend = require('./utils/extend');
 var addListener = require('./utils/addListener');
 var addClass = require('./utils/addClass');
 var removeClass = require('./utils/removeClass');
-var hasClass = require('./utils/hasClass');
 var forEach = require('./utils/forEach');
-var siblings = require('./utils/siblings');
 var pubsub = require('./utils/pubsub');
+var swipe = require('./utils/swipe');
 
 var query = document.querySelector.bind(document);
 var _removeAllClasses = function() {
@@ -78,6 +77,7 @@ var Slider = function(selector, options) {
             this.slides.unshift(this.$selector.children[i]);
         }
     }
+    swipe.init();
     this.init();
     this.autoLoop();
 
@@ -141,6 +141,15 @@ SliderProto.init = function() {
         });
     }
     _updatePagination(this.currentSlide);
+
+    pubsub.subscribe('swipe', function(direction) {
+        if (direction === 'left') {
+            self.next();
+        }
+        if (direction === 'right') {
+            self.prev();
+        }
+    });
 };
 
 
@@ -193,7 +202,6 @@ SliderProto.next = function() {
     addClass(slides[this.currentSlide === 0 ? slides.length - 1 : this.currentSlide - 1], 'hide-previous');
     _updatePagination(this.currentSlide);
 
-
     pubsub.publish('afterChange', this.currentSlide);
 };
 
@@ -227,7 +235,7 @@ SliderProto.showSlide = function(index) {
 };
 
 module.exports = Slider;
-},{"./utils/addClass":3,"./utils/addListener":4,"./utils/extend":5,"./utils/forEach":6,"./utils/hasClass":7,"./utils/pubsub":8,"./utils/removeClass":9,"./utils/siblings":10}],3:[function(require,module,exports){
+},{"./utils/addClass":3,"./utils/addListener":4,"./utils/extend":5,"./utils/forEach":6,"./utils/pubsub":7,"./utils/removeClass":8,"./utils/swipe":9}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = function(el, className) {
@@ -289,19 +297,6 @@ module.exports = function(arr, callback, thisObj) {
 },{}],7:[function(require,module,exports){
 'use strict';
 
-module.exports = function(el, className) {
-    if (!el) {
-        return;
-    }
-    if (el.classList) {
-        return el.classList.contains(className);
-    } else {
-        return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
-    }
-};
-},{}],8:[function(require,module,exports){
-'use strict';
-
 var _checkEvent = function(event) {
     if (Object.prototype.toString.call(event) !== '[object String]') {
         throw new TypeError('Event is not a string.');
@@ -355,7 +350,7 @@ pubsub.unsubscribe = function() {
 };
 
 module.exports = pubsub;
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 module.exports = function(el, className) {
     if (!el) {
@@ -368,18 +363,62 @@ module.exports = function(el, className) {
         return el.className;
     }
 };
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
+var pubsub = require('./pubsub');
+var Swiper = {
+    config: {
+        isMoving: false,
+        threshold: 20,
+        startX: "",
+        startY: ""
+    },
+    touchHandler: function(event) {
+        event.preventDefault();
+        if (typeof event.touches !== 'undefined') {
+            var gestures = {
+                'touchstart': function(event) {
+                    Swiper.config.startX = event.touches[0].pageX;
+                    Swiper.config.startY = event.touches[0].pageY;
+                    Swiper.config.isMoving = true;
+                    document.addEventListener('touchmove', gestures.touchmove, false);
+                    document.addEventListener('touchend', gestures.touchend, false);
+                },
+                'touchmove': function(event) {
+                    if (Swiper.config.isMoving) {
+                        var x = event.touches[0].pageX;
+                        var y = event.touches[0].pageY;
+                        var dx = Swiper.config.startX - x;
+                        var dy = Swiper.config.startY - y;
+                        var direction;
+                        if (Math.abs(dx) >= Swiper.config.threshold) {
+                            direction = dx > 0 ? 'left' : 'right';
+                        }
+                        if (Math.abs(dy) >= Swiper.config.threshold) {
+                            direction = dy > 0 ? 'down' : 'up';
+                        }
+                        if (direction) {
+                            gestures.touchend.call(this);
+                            pubsub.publish('swipe', direction);
+                        }
+                    }
+                },
+                'touchend': function() {
+                    document.removeEventListener('touchmove', gestures.touchmove);
+                    document.removeEventListener('touchend', gestures.touchend);
+                    Swiper.config.isMoving = false;
+                }
+            };
 
-// el = element
-// sibling is previousSibling or nextSibling
-module.exports = function(el, sibling) {
-    if (!el) {
-        return;
+            if (gestures && typeof(gestures[event.type]) === 'function') {
+                gestures[event.type].call(this, event);
+            }
+        }
+    },
+    init: function() {
+        return document.addEventListener('touchstart', Swiper.touchHandler, false);
     }
-    do {
-        el = el[sibling];
-    } while (el && el.nodeType !== 1);
-    return el;
 };
-},{}]},{},[1])
+
+module.exports = Swiper;
+},{"./pubsub":7}]},{},[1])

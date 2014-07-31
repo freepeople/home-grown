@@ -6,10 +6,9 @@ var extend = require('./utils/extend');
 var addListener = require('./utils/addListener');
 var addClass = require('./utils/addClass');
 var removeClass = require('./utils/removeClass');
-var hasClass = require('./utils/hasClass');
 var forEach = require('./utils/forEach');
-var siblings = require('./utils/siblings');
 var pubsub = require('./utils/pubsub');
+var swipe = require('./utils/swipe');
 
 var query = document.querySelector.bind(document);
 var _removeAllClasses = function() {
@@ -49,6 +48,7 @@ var Slider = function(selector, options) {
             this.slides.unshift(this.$selector.children[i]);
         }
     }
+    swipe.init();
     this.init();
     this.autoLoop();
 
@@ -112,6 +112,15 @@ SliderProto.init = function() {
         });
     }
     _updatePagination(this.currentSlide);
+
+    pubsub.subscribe('swipe', function(direction) {
+        if (direction === 'left') {
+            self.next();
+        }
+        if (direction === 'right') {
+            self.prev();
+        }
+    });
 };
 
 
@@ -163,7 +172,6 @@ SliderProto.next = function() {
     addClass(slides[this.currentSlide], 'show-next');
     addClass(slides[this.currentSlide === 0 ? slides.length - 1 : this.currentSlide - 1], 'hide-previous');
     _updatePagination(this.currentSlide);
-
 
     pubsub.publish('afterChange', this.currentSlide);
 };

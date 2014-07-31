@@ -54,33 +54,32 @@
   display: block;
 }
 
-.show-previous {
+.homemade-slider-hslide .show-previous {
   -webkit-animation: slideFromLeft 350ms 10ms linear both;
   -moz-animation: slideFromLeft 350ms 10ms linear both;
   -ms-animation: slideFromLeft 350ms 10ms linear both;
   animation: slideFromLeft 350ms 10ms linear both;
 }
-.show-next {
+.homemade-slider-hslide  .show-next {
   -webkit-animation: slideFromRight 350ms 10ms linear both;
   -moz-animation: slideFromRight 350ms 10ms linear both;
   -ms-animation: slideFromRight 350ms 10ms linear both;
   animation: slideFromRight 350ms 10ms linear both;
 }
 
-.hide-previous {
+.homemade-slider-hslide  .hide-previous {
   -webkit-animation: slideToLeft 350ms 10ms linear both;
   -moz-animation: slideToLeft 350ms 10ms linear both;
   -ms-animation: slideToLeft 350ms 10ms linear both;
   animation: slideToLeft 350ms 10ms linear both;
 }
-.hide-next {
+.homemade-slider-hslide  .hide-next {
   -webkit-animation: slideToRight 350ms 10ms linear both;
   -moz-animation: slideToRight 350ms 10ms linear both;
   -ms-animation: slideToRight 350ms 10ms linear both;
   animation: slideToRight 350ms 10ms linear both;
 }
 
-/*==========  SLIDE ANIMATIONS  ==========*/
 @-webkit-keyframes slideFromLeft {
   0% {
     -webkit-transform: translate3d(-100%, 0, 0);
@@ -262,5 +261,38 @@
     -moz-transform: translate3d(100%, 0, 0);
     -ms-transform: translate3d(100%, 0, 0);
     transform: translate3d(100%, 0, 0);
+  }
+}
+
+.homemade-slider-fade .hide-previous,
+.homemade-slider-fade .hide-next {
+  display: block;
+  -webkit-animation: fadeOut 450ms cubic-bezier(0.455, 0.03, 0.515, 0.955) both;
+  -moz-animation: fadeOut 450ms cubic-bezier(0.455, 0.03, 0.515, 0.955) both;
+  -ms-animation: fadeOut 450ms cubic-bezier(0.455, 0.03, 0.515, 0.955) both;
+  animation: fadeOut 450ms cubic-bezier(0.455, 0.03, 0.515, 0.955) both;
+}
+
+@-webkit-keyframes fadeOut {
+  100% {
+    opacity: 0;
+  }
+}
+
+@-moz-keyframes fadeOut {
+  100% {
+    opacity: 0;
+  }
+}
+
+@-ms-keyframes fadeOut {
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  100% {
+    opacity: 0;
   }
 }
