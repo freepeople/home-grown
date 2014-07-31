@@ -9,23 +9,23 @@ var slider = new Slider('#slider', {
     pauseTime: 0
 });
 
-var bc = function() {
-    console.log('before slide change');
-};
+// var bc = function() {
+//     console.log('before slide change');
+// };
 
-pubsub.subscribe('beforeChange', bc);
+// pubsub.subscribe('beforeChange', bc);
 
-pubsub.subscribe('beforeChange', function() {
-    console.log('different dev using anonymous function cb');
-});
+// pubsub.subscribe('beforeChange', function() {
+//     console.log('different dev using anonymous function cb');
+// });
 
-pubsub.subscribe('hovered', function() {
-    console.log('hovered on slide');
-});
+// pubsub.subscribe('hovered', function() {
+//     console.log('hovered on slide');
+// });
 
-setTimeout(function() {
-    pubsub.unsubscribe('beforeChange', bc);
-}, 12000);
+// setTimeout(function() {
+//     pubsub.unsubscribe('beforeChange', bc);
+// }, 12000);
 },{"./slider.proto":2,"./utils/pubsub":8}],2:[function(require,module,exports){
 // This is orginally lean-slider
 // but converted to vanilla js
@@ -41,12 +41,18 @@ var siblings = require('./utils/siblings');
 var pubsub = require('./utils/pubsub');
 
 var query = document.querySelector.bind(document);
-var removeAllClasses = function() {
+var _removeAllClasses = function() {
     removeClass(query('.current'), 'current');
     removeClass(query('.hide-previous'), 'hide-previous');
     removeClass(query('.show-previous'), 'show-previous');
     removeClass(query('.show-next'), 'show-next');
     removeClass(query('.hide-next'), 'hide-next');
+};
+
+var _updatePagination = function(index) {
+    var pagination = query('#slider-control-nav');
+    removeClass(query('.active-pager'), 'active-pager');
+    addClass(pagination.children[index], 'active-pager');
 };
 
 var Slider = function(selector, options) {
@@ -134,7 +140,7 @@ SliderProto.init = function() {
             self.autoLoop();
         });
     }
-
+    _updatePagination(this.currentSlide);
 };
 
 
@@ -154,7 +160,7 @@ SliderProto.prev = function() {
     var slides = this.slides;
     pubsub.publish('beforeChange', this.currentSlide);
 
-    removeAllClasses();
+    _removeAllClasses();
 
     this.currentSlide--;
 
@@ -165,6 +171,7 @@ SliderProto.prev = function() {
     addClass(slides[this.currentSlide], 'current');
     addClass(slides[this.currentSlide], 'show-previous');
     addClass(slides[this.currentSlide === slides.length - 1 ? 0 : this.currentSlide + 1], 'hide-next');
+    _updatePagination(this.currentSlide);
 
     pubsub.publish('afterChange', this.currentSlide);
 };
@@ -173,7 +180,7 @@ SliderProto.next = function() {
     var slides = this.slides;
     pubsub.publish('beforeChange', this.currentSlide);
 
-    removeAllClasses();
+    _removeAllClasses();
 
     this.currentSlide++;
 
@@ -184,6 +191,8 @@ SliderProto.next = function() {
     addClass(slides[this.currentSlide], 'current');
     addClass(slides[this.currentSlide], 'show-next');
     addClass(slides[this.currentSlide === 0 ? slides.length - 1 : this.currentSlide - 1], 'hide-previous');
+    _updatePagination(this.currentSlide);
+
 
     pubsub.publish('afterChange', this.currentSlide);
 };
@@ -196,7 +205,7 @@ SliderProto.showSlide = function(index) {
         return;
     }
 
-    removeAllClasses();
+    _removeAllClasses();
 
     if (this.currentSlide < 0) {
         this.currentSlide = this.slides.length - 1;
@@ -214,6 +223,7 @@ SliderProto.showSlide = function(index) {
     }
 
     addClass(slides[this.currentSlide], 'current');
+    _updatePagination(index);
 };
 
 module.exports = Slider;

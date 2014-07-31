@@ -24,9 +24,17 @@
     bottom:0;
 }
 
-.homemade-slider-control-nav {
+.homemade-slider-control-nav,
+.homemade-slider-prev,
+.homemade-slider-next {
   margin: 4px;
   font-weight: bold;
+  text-decoration: none;
+  color:#333;
+}
+
+.active-pager {
+  color:#bf0000;
 }
 
 .slide.current {
