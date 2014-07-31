@@ -8,7 +8,7 @@ var addClass = require('./utils/addClass');
 var removeClass = require('./utils/removeClass');
 var forEach = require('./utils/forEach');
 var pubsub = require('./utils/pubsub');
-var swipe = require('./utils/swipe');
+var Swiper = require('./utils/swipe');
 
 var query = document.querySelector.bind(document);
 var _removeAllClasses = function() {
@@ -48,6 +48,7 @@ var Slider = function(selector, options) {
             this.slides.unshift(this.$selector.children[i]);
         }
     }
+    var swipe = new Swiper();
     swipe.init();
     this.init();
     this.autoLoop();

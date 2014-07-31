@@ -1,57 +1,62 @@
-'use strict';
+/***
+ *       ____         _
+ *      / __/_    __ (_)___  ___  ____
+ *     _\ \ | |/|/ // // _ \/ -_)/ __/
+ *    /___/ |__,__//_// .__/\__//_/
+ *                   /_/
+ */
+"use strict";
 var pubsub = require('./pubsub');
-var Swiper = {
-    config: {
-        isMoving: false,
-        threshold: 20,
-        startX: "",
-        startY: ""
-    },
-    touchHandler: function(event) {
-        event.preventDefault();
-        if (typeof event.touches !== 'undefined') {
-            var gestures = {
-                'touchstart': function(event) {
-                    Swiper.config.startX = event.touches[0].pageX;
-                    Swiper.config.startY = event.touches[0].pageY;
-                    Swiper.config.isMoving = true;
-                    document.addEventListener('touchmove', gestures.touchmove, false);
-                    document.addEventListener('touchend', gestures.touchend, false);
-                },
-                'touchmove': function(event) {
-                    if (Swiper.config.isMoving) {
-                        var x = event.touches[0].pageX;
-                        var y = event.touches[0].pageY;
-                        var dx = Swiper.config.startX - x;
-                        var dy = Swiper.config.startY - y;
-                        var direction;
-                        if (Math.abs(dx) >= Swiper.config.threshold) {
-                            direction = dx > 0 ? 'left' : 'right';
-                        }
-                        if (Math.abs(dy) >= Swiper.config.threshold) {
-                            direction = dy > 0 ? 'down' : 'up';
-                        }
-                        if (direction) {
-                            gestures.touchend.call(this);
-                            pubsub.publish('swipe', direction);
-                        }
-                    }
-                },
-                'touchend': function() {
-                    document.removeEventListener('touchmove', gestures.touchmove);
-                    document.removeEventListener('touchend', gestures.touchend);
-                    Swiper.config.isMoving = false;
-                }
-            };
 
-            if (gestures && typeof(gestures[event.type]) === 'function') {
-                gestures[event.type].call(this, event);
-            }
-        }
-    },
-    init: function() {
-        return document.addEventListener('touchstart', Swiper.touchHandler, false);
+var Swiper = function() {
+    this.isMoving = false;
+    this.threshold = 20;
+    this.startX = 0;
+    this.startY = 0;
+};
+
+var SwiperProto = Swiper.prototype;
+
+SwiperProto.init = function() {
+    return document.addEventListener('touchstart', this.onTouchstart.bind(this), false);
+};
+
+SwiperProto.onTouchstart = function(e) {
+    if (!e.touches) {
+        return;
     }
+    this.startX = e.touches[0].pageX;
+    this.startY = e.touches[0].pageY;
+    this.isMoving = true;
+    document.addEventListener('touchmove', this.onTouchmove.bind(this), false);
+    document.addEventListener('touchend', this.onTouchend.bind(this), false);
+};
+
+SwiperProto.onTouchmove = function(e) {
+    e.preventDefault();
+    if (this.isMoving) {
+        var x = e.touches[0].pageX;
+        var y = e.touches[0].pageY;
+        var dx = this.startX - x;
+        var dy = this.startY - y;
+        var direction;
+        if (Math.abs(dx) >= this.threshold) {
+            direction = dx > 0 ? 'left' : 'right';
+        }
+        if (Math.abs(dy) >= this.threshold) {
+            direction = dy > 0 ? 'down' : 'up';
+        }
+        if (direction) {
+            this.onTouchend.call(this);
+            pubsub.publish('swipe', direction);
+        }
+    }
+};
+
+SwiperProto.onTouchend = function() {
+    document.removeEventListener('touchmove', this.onTouchmove.bind(this));
+    document.removeEventListener('touchend', this.onTouchend.bind(this));
+    this.isMoving = false;
 };
 
 module.exports = Swiper;
