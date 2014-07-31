@@ -1,7 +1,7 @@
 {
     "nonew": true,
     "jquery": false,
-    "curly": true,
+    "curly": false,
     "noarg": true,
     "forin": true,
     "noempty": true,

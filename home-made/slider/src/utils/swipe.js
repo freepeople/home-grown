@@ -16,20 +16,19 @@ var Swiper = function() {
 };
 
 var SwiperProto = Swiper.prototype;
+var listenTo = document.addEventListener.bind(document);
 
 SwiperProto.init = function() {
-    return document.addEventListener('touchstart', this.onTouchstart.bind(this), false);
+    return listenTo('touchstart', this.onTouchstart.bind(this), false);
 };
 
 SwiperProto.onTouchstart = function(e) {
-    if (!e.touches) {
-        return;
-    }
+    if (!e.touches) return;
     this.startX = e.touches[0].pageX;
     this.startY = e.touches[0].pageY;
     this.isSwiping = true;
-    document.addEventListener('touchmove', this.onTouchmove.bind(this), false);
-    document.addEventListener('touchend', this.onTouchend.bind(this), false);
+    listenTo('touchmove', this.onTouchmove.bind(this), false);
+    listenTo('touchend', this.onTouchend.bind(this), false);
 };
 
 SwiperProto.onTouchmove = function(e) {
@@ -46,17 +45,18 @@ SwiperProto.onTouchmove = function(e) {
         if (Math.abs(directionY) >= this.threshold) {
             direction = directionY > 0 ? 'down' : 'up';
         }
-
-        this.onTouchend.call(this);
-        pubsub.publish('swipe', direction);
+        if (direction) {
+            this.onTouchend.call(this);
+            pubsub.publish('swipe', direction);
+        }
 
     }
 };
 
 SwiperProto.onTouchend = function() {
+    this.isSwiping = false;
     document.removeEventListener('touchmove', this.onTouchmove.bind(this));
     document.removeEventListener('touchend', this.onTouchend.bind(this));
-    this.isSwiping = false;
 };
 
 module.exports = Swiper;

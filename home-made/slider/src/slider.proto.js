@@ -14,197 +14,182 @@ var Swiper = require('./utils/swipe');
 var query = document.querySelector.bind(document);
 
 var _removeAllClasses = function() {
-	removeClass(query('.current'), 'current');
-	removeClass(query('.hide-previous'), 'hide-previous');
-	removeClass(query('.show-previous'), 'show-previous');
-	removeClass(query('.show-next'), 'show-next');
-	removeClass(query('.hide-next'), 'hide-next');
+    removeClass(query('.current'), 'current');
+    removeClass(query('.hide-previous'), 'hide-previous');
+    removeClass(query('.show-previous'), 'show-previous');
+    removeClass(query('.show-next'), 'show-next');
+    removeClass(query('.hide-next'), 'hide-next');
 };
 
 var _updatePagination = function(index) {
-	var pagination = query('#slider-control-nav');
-	removeClass(query('.active-pager'), 'active-pager');
-	addClass(pagination.children[index], 'active-pager');
+    var pagination = query('#slider-control-nav');
+    removeClass(query('.active-pager'), 'active-pager');
+    addClass(pagination.children[index], 'active-pager');
 };
 
 var Slider = function(selector, options) {
-	this.options = {
-		pauseTime: 4000,
-		pauseOnHover: true,
-		startSlide: 0,
-		directionNav: '',
-		directionNavPrevBuilder: '',
-		directionNavNextBuilder: '',
-		controlNav: '',
-		controlNavBuilder: ''
-	};
-	this.currentSlide = 0;
-	this.timer = 0;
-	this.selector = selector;
-	this.$selector = document.querySelector(this.selector);
-	this.options = extend(this.options, options);
-	this.slides = [];
-	for (var i = this.$selector.children.length; i--;) {
-		// Skip comment nodes on IE8
-		if (this.$selector.children[i].nodeType !== 8) {
-			this.slides.unshift(this.$selector.children[i]);
-		}
-	}
-	var swipe = new Swiper();
-	swipe.init();
-	this.init();
-	this.autoLoop();
+    this.options = {
+        pauseTime: 4000,
+        pauseOnHover: true,
+        startSlide: 0,
+        directionNav: '',
+        directionNavPrevBuilder: '',
+        directionNavNextBuilder: '',
+        controlNav: '',
+        controlNavBuilder: ''
+    };
+    this.currentSlide = 0;
+    this.timer = 0;
+    this.selector = selector;
+    this.$selector = query(this.selector);
+    this.options = extend(this.options, options);
+    this.slides = [];
+    for (var i = this.$selector.children.length; i--;) {
+        // Skip comment nodes on IE8
+        if (this.$selector.children[i].nodeType !== 8) {
+            this.slides.unshift(this.$selector.children[i]);
+        }
+    }
+    var swipe = new Swiper();
+    swipe.init();
+    this.init();
+    this.autoLoop();
 };
 
 var SliderProto = Slider.prototype;
 
 SliderProto.init = function() {
-	var $nextNav;
-	var $prevNav;
-	var self = this;
-	var bullets;
-	var $directionNav = document.querySelector(this.options.directionNav);
-	var $controlNav = document.querySelector(this.options.controlNav);
+    var $nextNav;
+    var $prevNav;
+    var self = this;
+    var bullets;
+    var $directionNav = query(this.options.directionNav);
+    var $controlNav = query(this.options.controlNav);
 
-	addClass(this.$selector, 'homemade-slider');
-	forEach(this.slides, function(slide, i) {
-		addClass(slide, 'homemade-slider-slide');
-		slide.setAttribute('data-index', i);
-	});
+    addClass(this.$selector, 'homemade-slider');
+    forEach(this.slides, function(slide, i) {
+        addClass(slide, 'homemade-slider-slide');
+        slide.setAttribute('data-index', i);
+    });
 
-	this.currentSlide = this.options.startSlide;
-	if (this.options.startSlide < 0 || this.options.startSlide >= this.slides.length) {
-		this.currentSlide = 0;
-	}
-	addClass(this.slides[this.currentSlide], 'current');
+    this.currentSlide = this.options.startSlide;
+    if (this.options.startSlide < 0 || this.options.startSlide >= this.slides.length) {
+        this.currentSlide = 0;
+    }
+    addClass(this.slides[this.currentSlide], 'current');
 
-	if ($directionNav) {
-		$nextNav = document.querySelector('.homemade-slider-next');
-		$prevNav = document.querySelector('.homemade-slider-prev');
+    if ($directionNav) {
+        $nextNav = query('.homemade-slider-next');
+        $prevNav = query('.homemade-slider-prev');
 
-		addListener($prevNav, 'click', function(e) {
-			e.preventDefault();
-			self.prev();
-		});
+        addListener($prevNav, 'click', function(e) {
+            e.preventDefault();
+            self.prev();
+        });
 
-		addListener($nextNav, 'click', function(e) {
-			e.preventDefault();
-			self.next();
-		});
-	}
-	if ($controlNav) {
-		for (var i = 0; i < this.slides.length; i++) {
-			bullets = '<a href="#" data-index="' + i + '" class="homemade-slider-control-nav">' + (i + 1) + '</a>';
-			$controlNav.innerHTML += bullets;
-		}
-		addListener($controlNav, 'click', function(e) {
-			e.preventDefault();
-			var i = e.target.getAttribute('data-index');
-			self.showSlide(i);
-		});
-	}
+        addListener($nextNav, 'click', function(e) {
+            e.preventDefault();
+            self.next();
+        });
+    }
+    if ($controlNav) {
+        for (var i = 0; i < this.slides.length; i++) {
+            bullets = '<a href="#" data-index="' + i + '" class="homemade-slider-control-nav">' + (i + 1) + '</a>';
+            $controlNav.innerHTML += bullets;
+        }
+        addListener($controlNav, 'click', function(e) {
+            e.preventDefault();
+            var i = e.target.getAttribute('data-index');
+            self.showSlide(i);
+        });
+    }
 
-	if (this.options.pauseOnHover) {
-		addListener(this.$selector, 'mouseenter', function() {
-			pubsub.publish('hovered');
-			clearTimeout(self.timer);
-		});
-		addListener(this.$selector, 'mouseout', function() {
-			self.autoLoop();
-		});
-	}
-	_updatePagination(this.currentSlide);
+    if (this.options.pauseOnHover) {
+        addListener(this.$selector, 'mouseenter', function() {
+            pubsub.publish('hovered');
+            clearTimeout(self.timer);
+        });
+        addListener(this.$selector, 'mouseout', function() {
+            self.autoLoop();
+        });
+    }
+    _updatePagination(this.currentSlide);
 
-	pubsub.subscribe('swipe', function(direction) {
-		if (direction === 'left') {
-			self.next();
-		}
-		if (direction === 'right') {
-			self.prev();
-		}
-	});
+    pubsub.subscribe('swipe', function(direction) {
+        if (direction === 'left') self.next();
+        if (direction === 'right') self.prev();
+    });
 };
 
 
 SliderProto.autoLoop = function() {
-	var self = this;
-	if (this.options.pauseTime && this.options.pauseTime > 0) {
-		clearTimeout(this.timer);
-		this.timer = setTimeout(function() {
-			self.next();
-			self.autoLoop();
-		}, this.options.pauseTime);
-	}
+    var self = this;
+    if (this.options.pauseTime && this.options.pauseTime > 0) {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(function() {
+            self.next();
+            self.autoLoop();
+        }, this.options.pauseTime);
+    }
 };
 
 
 SliderProto.prev = function() {
-	var slides = this.slides;
-	pubsub.publish('beforeChange', this.currentSlide);
+    var slides = this.slides;
+    pubsub.publish('beforeChange', this.currentSlide);
 
-	_removeAllClasses();
+    _removeAllClasses();
 
-	this.currentSlide--;
+    this.currentSlide--;
 
-	if (this.currentSlide < 0) {
-		this.currentSlide = slides.length - 1;
-	}
+    if (this.currentSlide < 0) this.currentSlide = slides.length - 1;
 
-	addClass(slides[this.currentSlide], 'current');
-	addClass(slides[this.currentSlide], 'show-previous');
-	addClass(slides[this.currentSlide === slides.length - 1 ? 0 : this.currentSlide + 1], 'hide-next');
-	_updatePagination(this.currentSlide);
+    addClass(slides[this.currentSlide], 'current');
+    addClass(slides[this.currentSlide], 'show-previous');
+    addClass(slides[this.currentSlide === slides.length - 1 ? 0 : this.currentSlide + 1], 'hide-next');
+    _updatePagination(this.currentSlide);
 
-	pubsub.publish('afterChange', this.currentSlide);
+    pubsub.publish('afterChange', this.currentSlide);
 };
 
 SliderProto.next = function() {
-	var slides = this.slides;
-	pubsub.publish('beforeChange', this.currentSlide);
+    var slides = this.slides;
+    pubsub.publish('beforeChange', this.currentSlide);
 
-	_removeAllClasses();
+    _removeAllClasses();
 
-	this.currentSlide++;
+    this.currentSlide++;
 
-	if (this.currentSlide >= slides.length) {
-		this.currentSlide = 0;
-	}
+    if (this.currentSlide >= slides.length) this.currentSlide = 0;
 
-	addClass(slides[this.currentSlide], 'current');
-	addClass(slides[this.currentSlide], 'show-next');
-	addClass(slides[this.currentSlide === 0 ? slides.length - 1 : this.currentSlide - 1], 'hide-previous');
-	_updatePagination(this.currentSlide);
+    addClass(slides[this.currentSlide], 'current');
+    addClass(slides[this.currentSlide], 'show-next');
+    addClass(slides[this.currentSlide === 0 ? slides.length - 1 : this.currentSlide - 1], 'hide-previous');
+    _updatePagination(this.currentSlide);
 
-	pubsub.publish('afterChange', this.currentSlide);
+    pubsub.publish('afterChange', this.currentSlide);
 };
 
 SliderProto.showSlide = function(index) {
-	var slides = this.slides;
-	var oldIndex = query('.current').getAttribute('data-index');
-	this.currentSlide = index;
-	if (!index || oldIndex === index) {
-		return;
-	}
+    var slides = this.slides;
+    var oldIndex = query('.current').getAttribute('data-index');
+    if (!index || oldIndex === index) return;
+    this.currentSlide = index;
+    _removeAllClasses();
 
-	_removeAllClasses();
+    if (this.currentSlide < 0) this.currentSlide = this.slides.length - 1;
+    if (this.currentSlide >= this.slides.length) this.currentSlide = 0;
 
-	if (this.currentSlide < 0) {
-		this.currentSlide = this.slides.length - 1;
-	}
-	if (this.currentSlide >= this.slides.length) {
-		this.currentSlide = 0;
-	}
+    if (this.currentSlide > oldIndex) {
+        addClass(slides[oldIndex], 'hide-previous');
+        addClass(slides[this.currentSlide], 'show-next');
+    } else {
+        addClass(slides[oldIndex], 'hide-next');
+        addClass(slides[this.currentSlide], 'show-previous');
+    }
 
-	if (this.currentSlide > oldIndex) {
-		addClass(slides[oldIndex], 'hide-previous');
-		addClass(slides[this.currentSlide], 'show-next');
-	} else {
-		addClass(slides[oldIndex], 'hide-next');
-		addClass(slides[this.currentSlide], 'show-previous');
-	}
-
-	addClass(slides[this.currentSlide], 'current');
-	_updatePagination(index);
+    addClass(slides[this.currentSlide], 'current');
+    _updatePagination(index);
 };
 
 module.exports = Slider;
