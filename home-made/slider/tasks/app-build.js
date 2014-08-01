@@ -27,6 +27,8 @@ gulp.task('watch', function() {
         bundleStream
             .bundle()
             .pipe(source('app.js'))
+            .pipe(buffer())
+            .pipe(ugilfy())
             .pipe(gulp.dest('./slider/dist/js'))
             .on('error', function(err) {
                 console.log(err);

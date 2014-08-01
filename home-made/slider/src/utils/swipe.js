@@ -36,14 +36,14 @@ SwiperProto.onTouchmove = function(e) {
     if (this.isSwiping) {
         var x = e.touches[0].pageX;
         var y = e.touches[0].pageY;
-        var directionX = this.startX - x;
-        var directionY = this.startY - y;
+        var distanceX = this.startX - x;
+        var distanceY = this.startY - y;
         var direction;
-        if (Math.abs(directionX) >= this.threshold) {
-            direction = directionX > 0 ? 'left' : 'right';
+        if (Math.abs(distanceX) >= this.threshold) {
+            direction = distanceX > 0 ? 'left' : 'right';
         }
-        if (Math.abs(directionY) >= this.threshold) {
-            direction = directionY > 0 ? 'down' : 'up';
+        if (Math.abs(distanceY) >= this.threshold) {
+            direction = distanceY > 0 ? 'down' : 'up';
         }
         if (direction) {
             this.onTouchend.call(this);

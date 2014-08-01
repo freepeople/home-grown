@@ -61,7 +61,6 @@ var SliderProto = Slider.prototype;
 SliderProto.init = function() {
     var $nextNav;
     var $prevNav;
-    var self = this;
     var bullets;
     var $directionNav = query(this.options.directionNav);
     var $controlNav = query(this.options.controlNav);
@@ -84,13 +83,13 @@ SliderProto.init = function() {
 
         addListener($prevNav, 'click', function(e) {
             e.preventDefault();
-            self.prev();
-        });
+            this.prev();
+        }.bind(this));
 
         addListener($nextNav, 'click', function(e) {
             e.preventDefault();
-            self.next();
-        });
+            this.next();
+        }.bind(this));
     }
     if ($controlNav) {
         for (var i = 0; i < this.slides.length; i++) {
@@ -100,36 +99,35 @@ SliderProto.init = function() {
         addListener($controlNav, 'click', function(e) {
             e.preventDefault();
             var i = e.target.getAttribute('data-index');
-            self.showSlide(i);
-        });
+            this.showSlide(i);
+        }.bind(this));
     }
 
     if (this.options.pauseOnHover) {
         addListener(this.$selector, 'mouseenter', function() {
             pubsub.publish('hovered');
-            clearTimeout(self.timer);
-        });
+            clearTimeout(this.timer);
+        }.bind(this));
         addListener(this.$selector, 'mouseout', function() {
-            self.autoLoop();
-        });
+            this.autoLoop();
+        }.bind(this));
     }
     _updatePagination(this.currentSlide);
 
     pubsub.subscribe('swipe', function(direction) {
-        if (direction === 'left') self.next();
-        if (direction === 'right') self.prev();
-    });
+        if (direction === 'left') this.next();
+        if (direction === 'right') this.prev();
+    }.bind(this));
 };
 
 
 SliderProto.autoLoop = function() {
-    var self = this;
     if (this.options.pauseTime && this.options.pauseTime > 0) {
         clearTimeout(this.timer);
         this.timer = setTimeout(function() {
-            self.next();
-            self.autoLoop();
-        }, this.options.pauseTime);
+            this.next();
+            this.autoLoop();
+        }.bind(this), this.options.pauseTime);
     }
 };
 
