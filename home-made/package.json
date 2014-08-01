@@ -4,7 +4,11 @@
   "description": "Home made code modules",
   "main": "index.js",
   "scripts": {
-    "test": "tape test/*.js"
+    "test": "tape test/*.js",
+    "install": "napa"
+  },
+  "napa": {
+    "picturefill": "scottjehl/picturefill"
   },
   "author": "David Annopolsky",
   "license": "MIT",
@@ -12,6 +16,7 @@
     "browserify": "^4.2.3",
     "gulp": "^3.8.6",
     "gulp-uglify": "^0.3.1",
+    "napa": "^0.4.1",
     "vinyl-buffer": "0.0.0",
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^0.10.2"
