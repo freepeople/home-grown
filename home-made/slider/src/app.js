@@ -13,7 +13,6 @@ var slider = new Slider('#slider', {
 // };
 
 // pubsub.subscribe('beforeChange', bc);
-
 // pubsub.subscribe('beforeChange', function() {
 //     console.log('different dev using anonymous function cb');
 // });

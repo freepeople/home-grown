@@ -1,7 +1,7 @@
 'use strict';
 
-var _checkEvent = function(event) {
-    if (Object.prototype.toString.call(event) !== '[object String]') {
+var _checkEvent = function(e) {
+    if (Object.prototype.toString.call(e) !== '[object String]') {
         throw new TypeError('Event is not a string.');
     }
 };
@@ -13,43 +13,36 @@ var _checkHandler = function(handler) {
 };
 
 var handlers = {};
-var pubsub = {};
+var pubsub = {
+    publish: function(e) {
+        _checkEvent(e);
 
-pubsub.publish = function(event) {
-    _checkEvent(event);
+        if (!handlers[e]) return;
 
-    if (!handlers[event]) {
-        return;
-    }
+        var context = {
+            e: e,
+            args: [].slice.call(arguments, 1)
+        };
 
-    var context = {
-        event: event,
-        args: [].slice.call(arguments, 1)
-    };
+        for (var i = 0, l = handlers[e].length; i < l; i++) {
+            handlers[e][i].apply(context, context.args);
+        }
+    },
+    subscribe: function(e, handler) {
+        _checkEvent(e);
+        _checkHandler(handler);
+        (handlers[e] = handlers[e] || []).push(handler);
+    },
+    unsubscribe: function() {
+        var args = [].slice.call(arguments);
+        var e = args[0];
+        var handler = args[1];
 
-    for (var i = 0, l = handlers[event].length; i < l; i++) {
-        handlers[event][i].apply(context, context.args);
+        _checkEvent(e);
+        _checkHandler(handler);
+
+        if (e in handlers === false) return;
+        handlers[e].splice(handlers[e].indexOf(handler), 1);
     }
 };
-
-pubsub.subscribe = function(event, handler) {
-    _checkEvent(event);
-    _checkHandler(handler);
-    (handlers[event] = handlers[event] || []).push(handler);
-};
-
-pubsub.unsubscribe = function() {
-    var args = [].slice.call(arguments);
-    var event = args[0];
-    var handler = args[1];
-
-    _checkEvent(event);
-    _checkHandler(handler);
-
-    if (event in handlers === false) {
-        return;
-    }
-    handlers[event].splice(handlers[event].indexOf(handler), 1);
-};
-
 module.exports = pubsub;
