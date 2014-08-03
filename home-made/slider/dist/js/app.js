@@ -9,11 +9,11 @@ var slider = new Slider('#slider', {
     pauseTime: 0
 });
 
-var bc = function() {
-    console.log('before slide change');
-};
+// var bc = function() {
+//     console.log('before slide change');
+// };
 
-pubsub.subscribe('beforeChange', bc);
+// pubsub.subscribe('beforeChange', bc);
 // pubsub.subscribe('beforeChange', function() {
 //     console.log('different dev using anonymous function cb');
 // });

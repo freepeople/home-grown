@@ -4,11 +4,24 @@
   "description": "Home made code modules",
   "main": "index.js",
   "scripts": {
-    "test": "tape test/*.js",
+    "test": "testling | tap-spec",
     "install": "napa"
   },
   "napa": {
     "picturefill": "scottjehl/picturefill"
+  },
+  "testling": {
+    "files": "slider/test/**/*.js",
+    "browsers": [
+      "ie/6..latest",
+      "chrome/22..latest",
+      "firefox/16..latest",
+      "safari/latest",
+      "opera/11.0..latest",
+      "iphone/6",
+      "ipad/6",
+      "android-browser/latest"
+    ]
   },
   "author": "David Annopolsky",
   "license": "MIT",
@@ -17,6 +30,8 @@
     "gulp": "^3.8.6",
     "gulp-uglify": "^0.3.1",
     "napa": "^0.4.1",
+    "tap-spec": "^0.2.0",
+    "tape": "^2.13.4",
     "vinyl-buffer": "0.0.0",
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^0.10.2"
