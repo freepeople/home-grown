@@ -6,22 +6,39 @@
         <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
         <title>Responsive Slider</title>
         <link rel="stylesheet" href="src/style.css">
+        <script src="../node_modules/picturefill/dist/picturefill.js"></script>
     </head>
     <body>
         
         <div class="slider-wrapper">
             <ul id="slider" class="homemade-slider-hslide">
                 <li class="slide">
-                    <img src="http://www.fillmurray.com/600/288">
+                    <picture>
+                        <source srcset="http://www.fillmurray.com/900/500"  media="(min-width: 1000px)">
+                        <source srcset="http://www.fillmurray.com/600/288"  media="(min-width: 800px)">
+                        <img srcset="http://www.fillmurray.com/600/288" >
+                    </picture>
                 </li>
                 <li class="slide">
-                    <img src="http://www.fillmurray.com/602/290" alt="" />
+                     <picture>
+                        <source srcset="http://www.fillmurray.com/905/500"  media="(min-width: 1000px)">
+                        <source srcset="http://www.fillmurray.com/602/290"  media="(min-width: 800px)">
+                        <img srcset="http://www.fillmurray.com/602/290" >
+                    </picture>
                 </li>
                 <li class="slide">
-                    <img src="http://www.fillmurray.com/600/293" alt="" />
+                     <picture>
+                        <source srcset="http://www.fillmurray.com/908/500"  media="(min-width: 1000px)">
+                        <source srcset="http://www.fillmurray.com/600/293"  media="(min-width: 800px)">
+                        <img srcset="http://www.fillmurray.com/600/293" >
+                    </picture>
                 </li>
                 <li class="slide">
-                    <img src="http://www.fillmurray.com/600/289" alt="" />
+                     <picture>
+                        <source srcset="http://www.fillmurray.com/910/500"  media="(min-width: 1000px)">
+                        <source srcset="http://www.fillmurray.com/600/289"  media="(min-width: 800px)">
+                        <img srcset="http://www.fillmurray.com/600/289" >
+                    </picture>
                 </li>
             </ul>
             <div id="slider-direction-nav">
@@ -30,7 +47,6 @@
             </div>
             <div id="slider-control-nav"></div>
         </div>
-        
         <script src="dist/js/app.js"></script>
     </body>
 </html>
