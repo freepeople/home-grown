@@ -21,7 +21,7 @@ Utilities are stored in the root folder but are symlinked to
 node_modules folder to avoid [relative path](https://github.com/substack/browserify-handbook#avoiding-)
 hell: ../../...
 
-There utilities can be required like so `require('utils/nameOfUtil');`
+The utilities can be required like so `require('utils/nameOfUtil');`
 
 
 <sup>*</sup>Touch events not pointers, which means no current
