@@ -7,19 +7,17 @@
  */
 "use strict";
 var pubsub = require('./pubsub');
-
+var onEvent = require('./onEvent');
 var Swiper = function() {
     this.isSwiping = false;
     this.threshold = 20;
     this.startX = 0;
     this.startY = 0;
 };
-
 var SwiperProto = Swiper.prototype;
-var listenTo = document.addEventListener.bind(document);
 
 SwiperProto.init = function() {
-    return listenTo('touchstart', this.onTouchstart.bind(this), false);
+    return onEvent('touchstart', document, this.onTouchstart.bind(this));
 };
 
 SwiperProto.onTouchstart = function(e) {
@@ -27,8 +25,8 @@ SwiperProto.onTouchstart = function(e) {
     this.startX = e.touches[0].pageX;
     this.startY = e.touches[0].pageY;
     this.isSwiping = true;
-    listenTo('touchmove', this.onTouchmove.bind(this), false);
-    listenTo('touchend', this.onTouchend.bind(this), false);
+    onEvent('touchmove', document, this.onTouchmove.bind(this));
+    onEvent('touchend', document, this.onTouchend.bind(this));
 };
 
 SwiperProto.onTouchmove = function(e) {

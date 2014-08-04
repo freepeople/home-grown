@@ -1,5 +1,5 @@
 'use strict';
-module.exports = function(el, eventName, handler) {
+module.exports = function(eventName, el, handler) {
     if (el.addEventListener) {
         return el.addEventListener(eventName, handler);
     } else {

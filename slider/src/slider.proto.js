@@ -4,23 +4,23 @@
 'use strict';
 
 var extend = require('utils/extend');
-var addListener = require('utils/addListener');
+var onEvent = require('utils/onEvent');
 var forEach = require('utils/forEach');
 var pubsub = require('utils/pubsub');
 var Swiper = require('utils/swipe');
-var classes = require('utils/classes');
+var domAttr = require('utils/domAttr');
 var query = document.querySelector.bind(document);
 var _removeAllClasses = function() {
-    classes('removeClass', query('.current'), 'current');
-    classes('removeClass', query('.hide-previous'), 'hide-previous');
-    classes('removeClass', query('.show-previous'), 'show-previous');
-    classes('removeClass', query('.show-next'), 'show-next');
-    classes('removeClass', query('.hide-next'), 'hide-next');
+    domAttr('removeClass', query('.current'), 'current');
+    domAttr('removeClass', query('.hide-previous'), 'hide-previous');
+    domAttr('removeClass', query('.show-previous'), 'show-previous');
+    domAttr('removeClass', query('.show-next'), 'show-next');
+    domAttr('removeClass', query('.hide-next'), 'hide-next');
 };
 var _updatePagination = function(index) {
     var pagination = query('#slider-control-nav');
-    classes('removeClass', query('.active-pager'), 'active-pager');
-    classes('addClass', pagination.children[index], 'active-pager');
+    domAttr('removeClass', query('.active-pager'), 'active-pager');
+    domAttr('addClass', pagination.children[index], 'active-pager');
 };
 var Slider = function(selector, options) {
     this.options = {
@@ -59,9 +59,9 @@ SliderProto.init = function() {
     var $directionNav = query(this.options.directionNav);
     var $controlNav = query(this.options.controlNav);
 
-    classes('addClass', this.$selector, 'homemade-slider');
+    domAttr('addClass', this.$selector, 'homemade-slider');
     forEach(this.slides, function(slide, i) {
-        classes('addClass', slide, 'homemade-slider-slide');
+        domAttr('addClass', slide, 'homemade-slider-slide');
         slide.setAttribute('data-index', i);
     });
 
@@ -69,18 +69,18 @@ SliderProto.init = function() {
     if (this.options.startSlide < 0 || this.options.startSlide >= this.slides.length) {
         this.currentSlide = 0;
     }
-    classes('addClass', this.slides[this.currentSlide], 'current');
+    domAttr('addClass', this.slides[this.currentSlide], 'current');
 
     if ($directionNav) {
         $nextNav = query('.homemade-slider-next');
         $prevNav = query('.homemade-slider-prev');
 
-        addListener($prevNav, 'click', function(e) {
+        onEvent('click', $prevNav, function(e) {
             e.preventDefault();
             this.prev();
         }.bind(this));
 
-        addListener($nextNav, 'click', function(e) {
+        onEvent('click', $nextNav, function(e) {
             e.preventDefault();
             this.next();
         }.bind(this));
@@ -90,19 +90,19 @@ SliderProto.init = function() {
             bullets = '<a href="#" data-index="' + i + '" class="homemade-slider-control-nav">' + (i + 1) + '</a>';
             $controlNav.innerHTML += bullets;
         }
-        addListener($controlNav, 'click', function(e) {
+        onEvent('click', $controlNav, function(e) {
             e.preventDefault();
-            var i = e.target.getAttribute('data-index');
+            var i = domAttr('getAttr', e.target, 'data-index');
             this.showSlide(i);
         }.bind(this));
     }
 
     if (this.options.pauseOnHover) {
-        addListener(this.$selector, 'mouseenter', function() {
+        onEvent('mouseenter', this.$selector, function() {
             pubsub.publish('hovered');
             clearTimeout(this.timer);
         }.bind(this));
-        addListener(this.$selector, 'mouseout', function() {
+        onEvent('mouseout', this.$selector, function() {
             this.autoLoop();
         }.bind(this));
     }
@@ -136,9 +136,9 @@ SliderProto.prev = function() {
 
     if (this.currentSlide < 0) this.currentSlide = slides.length - 1;
 
-    classes('addClass', slides[this.currentSlide], 'current');
-    classes('addClass', slides[this.currentSlide], 'show-previous');
-    classes('addClass', slides[this.currentSlide === slides.length - 1 ? 0 : this.currentSlide + 1], 'hide-next');
+    domAttr('addClass', slides[this.currentSlide], 'current');
+    domAttr('addClass', slides[this.currentSlide], 'show-previous');
+    domAttr('addClass', slides[this.currentSlide === slides.length - 1 ? 0 : this.currentSlide + 1], 'hide-next');
     _updatePagination(this.currentSlide);
 
     pubsub.publish('afterChange', this.currentSlide);
@@ -154,9 +154,9 @@ SliderProto.next = function() {
 
     if (this.currentSlide >= slides.length) this.currentSlide = 0;
 
-    classes('addClass', slides[this.currentSlide], 'current');
-    classes('addClass', slides[this.currentSlide], 'show-next');
-    classes('addClass', slides[this.currentSlide === 0 ? slides.length - 1 : this.currentSlide - 1], 'hide-previous');
+    domAttr('addClass', slides[this.currentSlide], 'current');
+    domAttr('addClass', slides[this.currentSlide], 'show-next');
+    domAttr('addClass', slides[this.currentSlide === 0 ? slides.length - 1 : this.currentSlide - 1], 'hide-previous');
     _updatePagination(this.currentSlide);
 
     pubsub.publish('afterChange', this.currentSlide);
@@ -164,7 +164,7 @@ SliderProto.next = function() {
 
 SliderProto.showSlide = function(index) {
     var slides = this.slides;
-    var oldIndex = query('.current').getAttribute('data-index');
+    var oldIndex = domAttr('getAttr', query('.current'), 'data-index');
     if (!index || oldIndex === index) return;
     this.currentSlide = index;
     _removeAllClasses();
@@ -173,14 +173,14 @@ SliderProto.showSlide = function(index) {
     if (this.currentSlide >= this.slides.length) this.currentSlide = 0;
 
     if (this.currentSlide > oldIndex) {
-        classes('addClass', slides[oldIndex], 'hide-previous');
-        classes('addClass', slides[this.currentSlide], 'show-next');
+        domAttr('addClass', slides[oldIndex], 'hide-previous');
+        domAttr('addClass', slides[this.currentSlide], 'show-next');
     } else {
-        classes('addClass', slides[oldIndex], 'hide-next');
-        classes('addClass', slides[this.currentSlide], 'show-previous');
+        domAttr('addClass', slides[oldIndex], 'hide-next');
+        domAttr('addClass', slides[this.currentSlide], 'show-previous');
     }
 
-    classes('addClass', slides[this.currentSlide], 'current');
+    domAttr('addClass', slides[this.currentSlide], 'current');
     _updatePagination(index);
 };
 
