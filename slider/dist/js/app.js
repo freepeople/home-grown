@@ -1,7 +1,193 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
+
+module.exports = function(el, className) {
+    if (!el) {
+        return;
+    }
+    if (el.classList) {
+        el.classList.add(className);
+    } else {
+        el.className += ' ' + className;
+    }
+};
+},{}],2:[function(require,module,exports){
+'use strict';
+module.exports = function(el, eventName, handler) {
+    if (el.addEventListener) {
+        return el.addEventListener(eventName, handler);
+    } else {
+        el.attachEvent('on' + eventName, function() {
+            return handler.call(el);
+        });
+    }
+};
+},{}],3:[function(require,module,exports){
+'use strict';
+
+module.exports = function(obj) {
+    var arr = [];
+    // create true array from arguments
+    arr = arr.slice.call(arguments, 1);
+    arr.forEach(function(source) {
+        if (source) {
+            for (var prop in source) {
+                if (source.hasOwnProperty(prop)) {
+                    obj[prop] = source[prop];
+                }
+            }
+        }
+    });
+    return obj;
+};
+},{}],4:[function(require,module,exports){
+'use strict';
+
+module.exports = function(arr, callback, thisObj) {
+    if (arr === null) {
+        return;
+    }
+    var i = -1;
+    var len = arr.length;
+    while (++i < len) {
+        // we iterate over sparse items since there is no way to make it
+        // work properly on IE 7-8.
+        if (callback.call(thisObj, arr[i], i, arr) === false) {
+            break;
+        }
+    }
+};
+},{}],5:[function(require,module,exports){
+'use strict';
+
+console.log('simlink');
+
+var _checkEvent = function(e) {
+    if (Object.prototype.toString.call(e) !== '[object String]') {
+        throw new TypeError('Event is not a string.');
+    }
+};
+
+var _checkHandler = function(handler) {
+    if (typeof handler !== 'function') {
+        throw new TypeError('Handler is not a function');
+    }
+};
+
+var handlers = {};
+var pubsub = {
+    publish: function(e) {
+        _checkEvent(e);
+
+        if (!handlers[e]) return;
+
+        var context = {
+            e: e,
+            args: [].slice.call(arguments, 1)
+        };
+
+        for (var i = 0, l = handlers[e].length; i < l; i++) {
+            handlers[e][i].apply(context, context.args);
+        }
+    },
+    subscribe: function(e, handler) {
+        _checkEvent(e);
+        _checkHandler(handler);
+        (handlers[e] = handlers[e] || []).push(handler);
+    },
+    unsubscribe: function() {
+        var args = [].slice.call(arguments);
+        var e = args[0];
+        var handler = args[1];
+
+        _checkEvent(e);
+        _checkHandler(handler);
+
+        if (e in handlers === false) return;
+        handlers[e].splice(handlers[e].indexOf(handler), 1);
+    }
+};
+module.exports = pubsub;
+},{}],6:[function(require,module,exports){
+'use strict';
+module.exports = function(el, className) {
+    if (!el) {
+        return;
+    }
+    if (el.classList) {
+        return el.classList.remove(className);
+    } else {
+        el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+        return el.className;
+    }
+};
+},{}],7:[function(require,module,exports){
+/***
+ *       ____         _
+ *      / __/_    __ (_)___  ___  ____
+ *     _\ \ | |/|/ // // _ \/ -_)/ __/
+ *    /___/ |__,__//_// .__/\__//_/
+ *                   /_/
+ */
+"use strict";
+var pubsub = require('./pubsub');
+
+var Swiper = function() {
+    this.isSwiping = false;
+    this.threshold = 20;
+    this.startX = 0;
+    this.startY = 0;
+};
+
+var SwiperProto = Swiper.prototype;
+var listenTo = document.addEventListener.bind(document);
+
+SwiperProto.init = function() {
+    return listenTo('touchstart', this.onTouchstart.bind(this), false);
+};
+
+SwiperProto.onTouchstart = function(e) {
+    if (!e.touches) return;
+    this.startX = e.touches[0].pageX;
+    this.startY = e.touches[0].pageY;
+    this.isSwiping = true;
+    listenTo('touchmove', this.onTouchmove.bind(this), false);
+    listenTo('touchend', this.onTouchend.bind(this), false);
+};
+
+SwiperProto.onTouchmove = function(e) {
+    e.preventDefault();
+    if (this.isSwiping) {
+        var x = e.touches[0].pageX;
+        var y = e.touches[0].pageY;
+        var distanceX = this.startX - x;
+        var distanceY = this.startY - y;
+        var direction;
+        if (Math.abs(distanceX) >= this.threshold) {
+            direction = distanceX > 0 ? 'left' : 'right';
+        }
+        if (Math.abs(distanceY) >= this.threshold) {
+            direction = distanceY > 0 ? 'down' : 'up';
+        }
+        if (direction) {
+            this.onTouchend.call(this);
+            pubsub.publish('swipe', direction);
+        }
+
+    }
+};
+
+SwiperProto.onTouchend = function() {
+    this.isSwiping = false;
+    document.removeEventListener('touchmove', this.onTouchmove.bind(this));
+    document.removeEventListener('touchend', this.onTouchend.bind(this));
+};
+
+module.exports = Swiper;
+},{"./pubsub":5}],8:[function(require,module,exports){
+'use strict';
 var Slider = require('./slider.proto');
-var pubsub = require('./utils/pubsub');
+var pubsub = require('utils/pubsub');
 
 var slider = new Slider('#slider', {
     directionNav: '#slider-direction-nav',
@@ -25,19 +211,19 @@ var slider = new Slider('#slider', {
 // setTimeout(function() {
 //     pubsub.unsubscribe('beforeChange', bc);
 // }, 12000);
-},{"./slider.proto":2,"./utils/pubsub":7}],2:[function(require,module,exports){
+},{"./slider.proto":9,"utils/pubsub":5}],9:[function(require,module,exports){
 // This is orginally lean-slider
 // but converted to vanilla js
 // and built on top with browserify help :)
 'use strict';
 
-var extend = require('./utils/extend');
-var addListener = require('./utils/addListener');
-var addClass = require('./utils/addClass');
-var removeClass = require('./utils/removeClass');
-var forEach = require('./utils/forEach');
-var pubsub = require('./utils/pubsub');
-var Swiper = require('./utils/swipe');
+var extend = require('utils/extend');
+var addListener = require('utils/addListener');
+var addClass = require('utils/addClass');
+var removeClass = require('utils/removeClass');
+var forEach = require('utils/forEach');
+var pubsub = require('utils/pubsub');
+var Swiper = require('utils/swipe');
 
 var query = document.querySelector.bind(document);
 
@@ -219,188 +405,4 @@ SliderProto.showSlide = function(index) {
 };
 
 module.exports = Slider;
-},{"./utils/addClass":3,"./utils/addListener":4,"./utils/extend":5,"./utils/forEach":6,"./utils/pubsub":7,"./utils/removeClass":8,"./utils/swipe":9}],3:[function(require,module,exports){
-'use strict';
-
-module.exports = function(el, className) {
-    if (!el) {
-        return;
-    }
-    if (el.classList) {
-        el.classList.add(className);
-    } else {
-        el.className += ' ' + className;
-    }
-};
-},{}],4:[function(require,module,exports){
-'use strict';
-module.exports = function(el, eventName, handler) {
-    if (el.addEventListener) {
-        return el.addEventListener(eventName, handler);
-    } else {
-        el.attachEvent('on' + eventName, function() {
-            return handler.call(el);
-        });
-    }
-};
-},{}],5:[function(require,module,exports){
-'use strict';
-
-module.exports = function(obj) {
-    var arr = [];
-    // create true array from arguments
-    arr = arr.slice.call(arguments, 1);
-    arr.forEach(function(source) {
-        if (source) {
-            for (var prop in source) {
-                if (source.hasOwnProperty(prop)) {
-                    obj[prop] = source[prop];
-                }
-            }
-        }
-    });
-    return obj;
-};
-},{}],6:[function(require,module,exports){
-'use strict';
-
-module.exports = function(arr, callback, thisObj) {
-    if (arr === null) {
-        return;
-    }
-    var i = -1;
-    var len = arr.length;
-    while (++i < len) {
-        // we iterate over sparse items since there is no way to make it
-        // work properly on IE 7-8.
-        if (callback.call(thisObj, arr[i], i, arr) === false) {
-            break;
-        }
-    }
-};
-},{}],7:[function(require,module,exports){
-'use strict';
-
-var _checkEvent = function(e) {
-    if (Object.prototype.toString.call(e) !== '[object String]') {
-        throw new TypeError('Event is not a string.');
-    }
-};
-
-var _checkHandler = function(handler) {
-    if (typeof handler !== 'function') {
-        throw new TypeError('Handler is not a function');
-    }
-};
-
-var handlers = {};
-var pubsub = {
-    publish: function(e) {
-        _checkEvent(e);
-
-        if (!handlers[e]) return;
-
-        var context = {
-            e: e,
-            args: [].slice.call(arguments, 1)
-        };
-
-        for (var i = 0, l = handlers[e].length; i < l; i++) {
-            handlers[e][i].apply(context, context.args);
-        }
-    },
-    subscribe: function(e, handler) {
-        _checkEvent(e);
-        _checkHandler(handler);
-        (handlers[e] = handlers[e] || []).push(handler);
-    },
-    unsubscribe: function() {
-        var args = [].slice.call(arguments);
-        var e = args[0];
-        var handler = args[1];
-
-        _checkEvent(e);
-        _checkHandler(handler);
-
-        if (e in handlers === false) return;
-        handlers[e].splice(handlers[e].indexOf(handler), 1);
-    }
-};
-module.exports = pubsub;
-},{}],8:[function(require,module,exports){
-'use strict';
-module.exports = function(el, className) {
-    if (!el) {
-        return;
-    }
-    if (el.classList) {
-        return el.classList.remove(className);
-    } else {
-        el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
-        return el.className;
-    }
-};
-},{}],9:[function(require,module,exports){
-/***
- *       ____         _
- *      / __/_    __ (_)___  ___  ____
- *     _\ \ | |/|/ // // _ \/ -_)/ __/
- *    /___/ |__,__//_// .__/\__//_/
- *                   /_/
- */
-"use strict";
-var pubsub = require('./pubsub');
-
-var Swiper = function() {
-    this.isSwiping = false;
-    this.threshold = 20;
-    this.startX = 0;
-    this.startY = 0;
-};
-
-var SwiperProto = Swiper.prototype;
-var listenTo = document.addEventListener.bind(document);
-
-SwiperProto.init = function() {
-    return listenTo('touchstart', this.onTouchstart.bind(this), false);
-};
-
-SwiperProto.onTouchstart = function(e) {
-    if (!e.touches) return;
-    this.startX = e.touches[0].pageX;
-    this.startY = e.touches[0].pageY;
-    this.isSwiping = true;
-    listenTo('touchmove', this.onTouchmove.bind(this), false);
-    listenTo('touchend', this.onTouchend.bind(this), false);
-};
-
-SwiperProto.onTouchmove = function(e) {
-    e.preventDefault();
-    if (this.isSwiping) {
-        var x = e.touches[0].pageX;
-        var y = e.touches[0].pageY;
-        var distanceX = this.startX - x;
-        var distanceY = this.startY - y;
-        var direction;
-        if (Math.abs(distanceX) >= this.threshold) {
-            direction = distanceX > 0 ? 'left' : 'right';
-        }
-        if (Math.abs(distanceY) >= this.threshold) {
-            direction = distanceY > 0 ? 'down' : 'up';
-        }
-        if (direction) {
-            this.onTouchend.call(this);
-            pubsub.publish('swipe', direction);
-        }
-
-    }
-};
-
-SwiperProto.onTouchend = function() {
-    this.isSwiping = false;
-    document.removeEventListener('touchmove', this.onTouchmove.bind(this));
-    document.removeEventListener('touchend', this.onTouchend.bind(this));
-};
-
-module.exports = Swiper;
-},{"./pubsub":7}]},{},[1])
+},{"utils/addClass":1,"utils/addListener":2,"utils/extend":3,"utils/forEach":4,"utils/pubsub":5,"utils/removeClass":6,"utils/swipe":7}]},{},[8])

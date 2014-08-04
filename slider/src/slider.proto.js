@@ -3,13 +3,13 @@
 // and built on top with browserify help :)
 'use strict';
 
-var extend = require('./utils/extend');
-var addListener = require('./utils/addListener');
-var addClass = require('./utils/addClass');
-var removeClass = require('./utils/removeClass');
-var forEach = require('./utils/forEach');
-var pubsub = require('./utils/pubsub');
-var Swiper = require('./utils/swipe');
+var extend = require('utils/extend');
+var addListener = require('utils/addListener');
+var addClass = require('utils/addClass');
+var removeClass = require('utils/removeClass');
+var forEach = require('utils/forEach');
+var pubsub = require('utils/pubsub');
+var Swiper = require('utils/swipe');
 
 var query = document.querySelector.bind(document);
 

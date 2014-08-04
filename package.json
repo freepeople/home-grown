@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Home made code modules",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "test": "testling | tap-spec",
     "install": "napa"

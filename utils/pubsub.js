@@ -1,5 +1,6 @@
 'use strict';
 
+
 var _checkEvent = function(e) {
     if (Object.prototype.toString.call(e) !== '[object String]') {
         throw new TypeError('Event is not a string.');
