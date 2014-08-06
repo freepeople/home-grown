@@ -43,17 +43,19 @@ MicroRequestProto.process = function() {
     this.xhr = new XMLHttpRequest();
     this.xhr.onreadystatechange = function() {
         var result;
+        var status = this.xhr.status;
         if (this.xhr.readyState === 4) {
-            if (this.xhr.status === 200) {
+            if (status >= 200 && status < 300 || status === 304) {
                 result = this.xhr.responseText;
                 if (this.config.json === true && typeof JSON !== 'undefined') {
                     result = JSON.parse(result);
                 }
-                return this.doneCallback && this.doneCallback.apply(this, [result, this.xhr]);
+                this.doneCallback && this.doneCallback.call(this, result, this.xhr);
+            } else {
+                this.failCallback && this.failCallback.call(this, this.xhr);
             }
-            return this.failCallback && this.failCallback.apply(this, [this.xhr]);
+            this.alwaysCallback && this.alwaysCallback.call(this, this.xhr);
         }
-        return this.alwaysCallback && this.alwaysCallback.apply(this, [this.xhr]);
     }.bind(this);
 
     if (this.config.type === 'get') {
@@ -88,4 +90,5 @@ MicroRequestProto.always = function(callback) {
     this.alwaysCallback = callback;
     return this;
 };
+
 module.exports = MicroRequest;
