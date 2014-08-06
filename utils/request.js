@@ -1,4 +1,5 @@
 'use strict';
+
 var _hasOwn = function(obj, prop) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
 };
@@ -34,6 +35,7 @@ var MicroRequest = function(config) {
     this.process();
 };
 var MicroRequestProto = MicroRequest.prototype;
+
 MicroRequestProto.process = function() {
     this.xhr = new XMLHttpRequest();
     this.xhr.onreadystatechange = function() {
@@ -47,16 +49,18 @@ MicroRequestProto.process = function() {
                 if (this.config.json === true && typeof JSON !== 'undefined') {
                     result = JSON.parse(result);
                 }
-                this.doneCallback && this.doneCallback(result, this.xhr, statusText);
+                this.doneCallback(result, this.xhr, statusText);
             } else {
                 error = this.xhr.response;
-                this.failCallback && this.failCallback(error, this.xhr, statusText);
+                this.failCallback(error, this.xhr, statusText);
             }
-            this.alwaysCallback && this.alwaysCallback(statusText);
+            this.alwaysCallback(statusText);
         }
     }.bind(this);
-    if (this.config.type === 'get') {
-        this.xhr.open("GET", this.config.url + _getParams(this.config.data, this.config.url), true);
+
+    if (this.config.type.toLowerCase() === 'get') {
+        this.xhr.open("GET", this.config.url +
+            _getParams.call(this, this.config.data, this.config.url), true);
         this.xhr.send();
     } else {
         this.xhr.open(this.config.type, this.config.url, true);
@@ -64,21 +68,25 @@ MicroRequestProto.process = function() {
             'X-Requested-With': 'XMLHttpRequest',
             'Content-type': 'application/x-www-form-urlencoded'
         });
-        this.xhr.send(_getParams(this.config.data));
+        this.xhr.send(_getParams.call(this, this.config.data));
     }
     if (this.config.headers && typeof this.config.headers === 'object') {
         _setHeaders.call(this, this.config.headers);
     }
+
     return this;
 };
+
 MicroRequestProto.done = function(callback) {
     this.doneCallback = callback;
     return this;
 };
+
 MicroRequestProto.fail = function(callback) {
     this.failCallback = callback;
     return this;
 };
+
 MicroRequestProto.always = function(callback) {
     this.alwaysCallback = callback;
     return this;
