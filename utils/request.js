@@ -1,6 +1,6 @@
+'use strict';
 // Forked from https://github.com/krasimir/absurd
 // Refactored to support only modern browsers and IE9+
-'use strict';
 
 // Helper methods
 // underscore prefix represents private methods
@@ -53,25 +53,26 @@ var MicroRequestProto = MicroRequest.prototype;
  * @return {Object} [the object itself meant for chaining methods]
  */
 MicroRequestProto.process = function() {
-    this.xhr = new XMLHttpRequest();
-    this.xhr.onload = function() {
+    var self = this;
+    self.xhr = new XMLHttpRequest();
+    self.xhr.onload = function() {
         var result;
         var error;
-        var status = this.xhr.status;
-        var statusText = this.xhr.statusText;
+        var status = self.xhr.status;
+        var statusText = self.xhr.statusText;
         if (status >= 200 && status < 300 || status === 304) {
-            result = this.xhr.responseText;
-            if (this.config.json === true) {
+            result = self.xhr.responseText;
+            if (self.config.json === true) {
                 result = JSON.parse(result);
             }
-            this.doneCallback && this.doneCallback(result, this.xhr, statusText);
+            self.doneCallback && self.doneCallback(result, self.xhr, statusText);
         } else {
-            error = this.xhr.response;
-            this.failCallback && this.failCallback(error, this.xhr, statusText);
+            error = self.xhr.response;
+            self.failCallback && self.failCallback(error, self.xhr, statusText);
         }
-        return this.alwaysCallback && this.alwaysCallback(statusText);
+        return self.alwaysCallback && self.alwaysCallback(statusText);
 
-    }.bind(this);
+    };
 
     this.xhr.onerror = function() {
         throw new Error('Can\'t Connect');

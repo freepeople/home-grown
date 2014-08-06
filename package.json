@@ -12,7 +12,10 @@
     "picturefill": "scottjehl/picturefill"
   },
   "testling": {
-    "files": ["utils/test/*.js", "slider/test/*.js"],
+    "files": [
+      "utils/test/*.js",
+      "slider/test/*.js"
+    ],
     "browsers": [
       "ie/6..latest",
       "chrome/22..latest",
