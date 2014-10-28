@@ -18,7 +18,9 @@ var pubsub = {
     publish: function(e) {
         _checkEvent(e);
 
-        if (!handlers[e]) return;
+        if (!handlers[e]) {
+            return;
+        }
 
         var context = {
             e: e,
@@ -42,7 +44,9 @@ var pubsub = {
         _checkEvent(e);
         _checkHandler(handler);
 
-        if (e in handlers === false) return;
+        if (e in handlers === false) {
+            return;
+        }
         handlers[e].splice(handlers[e].indexOf(handler), 1);
     }
 };
